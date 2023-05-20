@@ -1,0 +1,13 @@
+server:
+  port: 8080
+  token_expire_time: 315360000
+  token_secret: base-backend-lite
+
+database:
+  ip: xxx.xxx.xxx.xxx
+  port: 8000
+  username: root
+  password: xxxxxx
+
+logger:
+  level: debug
