@@ -2,6 +2,7 @@ package ctrl
 
 import (
 	"github.com/Base-Technology/base-app-lite/common"
+	"github.com/Base-Technology/base-app-lite/ctrl/handler/group"
 	"github.com/Base-Technology/base-app-lite/ctrl/handler/post"
 	"github.com/Base-Technology/base-app-lite/ctrl/handler/user"
 )
@@ -9,6 +10,7 @@ import (
 func init() {
 	initUserInterfaces()
 	initPostInterfaces()
+	initGroupInterfaces()
 }
 
 func initUserInterfaces() {
@@ -30,4 +32,8 @@ func initPostInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/posts/like", Method: "DELETE", Handler: post.UnlikePostHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/posts/collect", Method: "POST", Handler: post.CollectPostHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/posts/collect", Method: "DELETE", Handler: post.UncollectPostHandle})
+}
+
+func initGroupInterfaces() {
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group/user", Method: "GET", Handler: group.GetGroupUserHandle})
 }
