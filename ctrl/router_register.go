@@ -1,10 +1,10 @@
 package ctrl
 
 import (
-	"github.com/Base-Technology/base-app-lite/common"
-	"github.com/Base-Technology/base-app-lite/ctrl/handler/group"
-	"github.com/Base-Technology/base-app-lite/ctrl/handler/post"
-	"github.com/Base-Technology/base-app-lite/ctrl/handler/user"
+	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/ctrl/handler/group"
+	"github.com/Base-Technology/base-backend-lite/ctrl/handler/post"
+	"github.com/Base-Technology/base-backend-lite/ctrl/handler/user"
 )
 
 func init() {

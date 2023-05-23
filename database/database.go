@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/Base-Technology/base-app-lite/conf"
+	"github.com/Base-Technology/base-backend-lite/conf"
 	"github.com/pkg/errors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

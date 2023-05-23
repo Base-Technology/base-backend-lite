@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/Base-Technology/base-app-lite/conf"
+	"github.com/Base-Technology/base-backend-lite/conf"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 )

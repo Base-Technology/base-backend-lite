@@ -3,7 +3,7 @@ package conf
 import (
 	"strings"
 
-	"github.com/Base-Technology/base-app-lite/seelog"
+	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )

@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 
-	"github.com/Base-Technology/base-app-lite/common"
-	"github.com/Base-Technology/base-app-lite/conf"
-	_ "github.com/Base-Technology/base-app-lite/ctrl"
-	"github.com/Base-Technology/base-app-lite/database"
-	"github.com/Base-Technology/base-app-lite/gin"
-	"github.com/Base-Technology/base-app-lite/seelog"
+	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/conf"
+	_ "github.com/Base-Technology/base-backend-lite/ctrl"
+	"github.com/Base-Technology/base-backend-lite/database"
+	"github.com/Base-Technology/base-backend-lite/gin"
+	"github.com/Base-Technology/base-backend-lite/seelog"
 )
 
 func main() {

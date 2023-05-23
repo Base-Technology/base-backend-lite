@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Base-Technology/base-app-lite/common"
-	"github.com/Base-Technology/base-app-lite/seelog"
+	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
 )
 

@@ -3,7 +3,7 @@ package common
 import (
 	"strings"
 
-	"github.com/Base-Technology/base-app-lite/seelog"
+	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
 )
 

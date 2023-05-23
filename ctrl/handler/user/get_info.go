@@ -3,9 +3,9 @@ package user
 import (
 	"fmt"
 
-	"github.com/Base-Technology/base-app-lite/common"
-	"github.com/Base-Technology/base-app-lite/ctrl/handler"
-	"github.com/Base-Technology/base-app-lite/database"
+	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/gin-gonic/gin"
 )
 

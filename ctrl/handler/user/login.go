@@ -3,11 +3,11 @@ package user
 import (
 	"fmt"
 
-	"github.com/Base-Technology/base-app-lite/common"
-	"github.com/Base-Technology/base-app-lite/ctrl/handler"
-	"github.com/Base-Technology/base-app-lite/database"
-	"github.com/Base-Technology/base-app-lite/seelog"
-	"github.com/Base-Technology/base-app-lite/token"
+	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/database"
+	"github.com/Base-Technology/base-backend-lite/seelog"
+	"github.com/Base-Technology/base-backend-lite/token"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"golang.org/x/crypto/bcrypt"
