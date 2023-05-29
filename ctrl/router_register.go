@@ -2,6 +2,7 @@ package ctrl
 
 import (
 	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/ctrl/handler/chat"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/group"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/post"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/user"
@@ -11,6 +12,7 @@ func init() {
 	initUserInterfaces()
 	initPostInterfaces()
 	initGroupInterfaces()
+	initChatInterfaces()
 }
 
 func initUserInterfaces() {
@@ -36,4 +38,8 @@ func initPostInterfaces() {
 
 func initGroupInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group/user", Method: "GET", Handler: group.GetGroupUserHandle})
+}
+
+func initChatInterfaces() {
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/chat/chatgpt", Method: "POST", Handler: chat.ChatGPTHandle})
 }
