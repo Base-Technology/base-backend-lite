@@ -2,6 +2,7 @@ package database
 
 import (
 	"gorm.io/gorm"
+	"time"
 )
 
 type User struct {
@@ -72,4 +73,17 @@ type Collect struct {
 
 	User *User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Post *Post `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+}
+
+type ChatGPTLimit struct {
+	UserID uint `gorm:"primaryKey"`
+
+	DailyLeftCallCount  int `gorm:"default:100"`
+	DailyLeftTokenCount int `gorm:"default:8000"`
+	TotalTokenLeftCount int `gorm:"default:20000"`
+
+	MaxDailyCallCount  int `gorm:"default:100"`
+	MaxDailyTokenCount int `gorm:"default:8000"`
+
+	LastResetTime time.Time
 }
