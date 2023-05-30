@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
@@ -16,6 +17,15 @@ import (
 )
 
 const ChatGPTProxyURL = "http://147.182.251.92:5000/proxy/openai"
+
+type ChatGPTLimitDetail struct {
+	DailyLeftCallCount  int `json:"daily_left_call_count"`
+	DailyLeftTokenCount int `json:"daily_left_token_count"`
+	TotalTokenLeftCount int `json:"total_token_left_count"`
+
+	MaxDailyCallCount  int `json:"max_daily_call_count"`
+	MaxDailyTokenCount int `json:"max_daily_token_count"`
+}
 
 func ChatGPTHandle(c *gin.Context) {
 	hd := &ChatGPTHandler{}
@@ -35,16 +45,7 @@ type ChatGPTRequest struct {
 type ChatGPTResponse struct {
 	common.BaseResponse
 	Response string `json:"response"`
-	ChatGPTLimit
-}
-
-type ChatGPTLimit struct {
-	UsedCallCount       int `json:"used_call_count"`
-	LeftCallCount       int `json:"left_call_count"`
-	DailyUsedTokenCount int `json:"daily_used_token_count"`
-	DailyLeftTokenCount int `json:"daily_left_token_count"`
-	TotalTokenCount     int `json:"total_token_count"`
-	TotalTokenLeftCount int `json:"total_token_left_count"`
+	ChatGPTLimitDetail
 }
 
 type ChatGPTProxyResponse struct {
@@ -81,13 +82,38 @@ func (h *ChatGPTHandler) SetUser(user *database.User) {
 }
 
 func (h *ChatGPTHandler) NeedVerifyToken() bool {
-	// TODO: enable authorization
-	return false
+	return true
 }
 
 func (h *ChatGPTHandler) Process() {
+	limit := &database.ChatGPTLimit{}
+	database.GetInstance().
+		Where(database.ChatGPTLimit{UserID: h.Req.User.ID}).
+		Attrs(database.ChatGPTLimit{LastResetTime: time.Now()}).
+		FirstOrCreate(limit)
+
+	// reset limit if last reset time is more than 24 hours
+	if time.Since(limit.LastResetTime).Hours() > 24 {
+		limit.DailyLeftCallCount = limit.MaxDailyCallCount
+		limit.DailyLeftTokenCount = limit.MaxDailyTokenCount
+		limit.LastResetTime = time.Now()
+	}
+
+	if !enoughBalance(limit, &h.Req.Prompt) {
+		seelog.Errorf("limit exceedeed: %+v", limit)
+		h.SetError(common.ErrorLimitExceedeed, "limit exceedeed")
+		h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
+			DailyLeftCallCount:  limit.DailyLeftCallCount,
+			DailyLeftTokenCount: limit.DailyLeftTokenCount,
+			TotalTokenLeftCount: limit.TotalTokenLeftCount,
+			MaxDailyCallCount:   limit.MaxDailyCallCount,
+			MaxDailyTokenCount:  limit.MaxDailyTokenCount,
+		}
+		return
+	}
+
 	url := fmt.Sprintf("%s?prompt=%s", ChatGPTProxyURL, url.QueryEscape(h.Req.Prompt))
-	fmt.Println(url)
+	//fmt.Println(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		seelog.Errorf("http get error: %v", err)
@@ -109,6 +135,17 @@ func (h *ChatGPTHandler) Process() {
 		h.SetError(common.ErrorInner, "internal error")
 		return
 	}
+
+	updateBalance(limit, &proxy_resp.Data)
 	//fmt.Println(proxy_resp.Data)
 	h.Resp.Response = proxy_resp.Data
+	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
+		DailyLeftCallCount:  limit.DailyLeftCallCount,
+		DailyLeftTokenCount: limit.DailyLeftTokenCount,
+		TotalTokenLeftCount: limit.TotalTokenLeftCount,
+		MaxDailyCallCount:   limit.MaxDailyCallCount,
+		MaxDailyTokenCount:  limit.MaxDailyTokenCount,
+	}
+
+	database.GetInstance().Save(limit)
 }

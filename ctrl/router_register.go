@@ -42,4 +42,5 @@ func initGroupInterfaces() {
 
 func initChatInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/chat/chatgpt", Method: "POST", Handler: chat.ChatGPTHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/chat/chatgpt_limit", Method: "GET", Handler: chat.ChatGPTLimitHandle})
 }

@@ -31,6 +31,7 @@ func InitDatabase() error {
 	db.AutoMigrate(&Follow{})
 	db.AutoMigrate(&Like{})
 	db.AutoMigrate(&Collect{})
+	db.AutoMigrate(&ChatGPTLimit{})
 
 	return nil
 }
