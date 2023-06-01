@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/Base-Technology/base-backend-lite/common"
@@ -70,6 +71,11 @@ func (h *ValidateCodeHandler) NeedVerifyToken() bool {
 }
 
 func (h *ValidateCodeHandler) Process() {
+	if !limiter.Take(h.Req.Phone) {
+		msg := fmt.Sprintf("rate limit")
+		h.SetError(common.ErrorInner, msg)
+		return
+	}
 	code := utils.GenerateValidateCode()
 	if err := h.send(code); err != nil {
 		msg := fmt.Sprintf("send validate code error, %v", err)
@@ -139,3 +145,62 @@ type SendValidateCodeResp struct {
 
 // TODO: use redis
 var validateCodes = cache.New(5*time.Minute, 10*time.Minute)
+
+var limiter = NewLimiter(time.Minute)
+
+type Limiter struct {
+	lastTimes map[string]time.Time
+	lock      *sync.Mutex
+	duration  time.Duration
+}
+
+func NewLimiter(duration time.Duration) *Limiter {
+	l := &Limiter{
+		lastTimes: make(map[string]time.Time),
+		lock:      &sync.Mutex{},
+		duration:  duration,
+	}
+	go l.loop()
+	return l
+}
+
+func (l *Limiter) Take(key string) bool {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	lastTime, ok := l.lastTimes[key]
+	if !ok {
+		lastTime = time.Time{}
+	}
+	if !time.Now().After(lastTime.Add(l.duration)) {
+		return false
+	}
+	l.lastTimes[key] = time.Now()
+	return true
+}
+
+func (l *Limiter) loop() {
+	ticker := time.NewTicker(l.duration * 2)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			l.clear()
+			ticker.Reset(l.duration * 2)
+		}
+	}
+}
+
+func (l *Limiter) clear() {
+	seelog.Infof("start to clear limiter")
+	l.lock.Lock()
+	defer l.lock.Unlock()
+	clearKeys := []string{}
+	for key, value := range l.lastTimes {
+		if !time.Now().After(value.Add(l.duration * 2)) {
+			clearKeys = append(clearKeys, key)
+		}
+	}
+	for _, key := range clearKeys {
+		delete(l.lastTimes, key)
+	}
+}
