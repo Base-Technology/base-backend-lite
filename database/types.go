@@ -1,6 +1,8 @@
 package database
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -83,4 +85,16 @@ type FriendRequest struct {
 	Name     string `gorm:"size:20"`
 	Avatar   string
 	Status   string //pending, accepted, declined
+}
+type ChatGPTLimit struct {
+	UserID uint `gorm:"primaryKey"`
+
+	DailyLeftCallCount  int `gorm:"default:100"`
+	DailyLeftTokenCount int `gorm:"default:8000"`
+	TotalTokenLeftCount int `gorm:"default:20000"`
+
+	MaxDailyCallCount  int `gorm:"default:100"`
+	MaxDailyTokenCount int `gorm:"default:8000"`
+
+	LastResetTime time.Time
 }

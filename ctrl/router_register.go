@@ -2,6 +2,7 @@ package ctrl
 
 import (
 	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/ctrl/handler/chat"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/friend"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/group"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/post"
@@ -13,6 +14,7 @@ func init() {
 	initPostInterfaces()
 	initGroupInterfaces()
 	initFriendInterfaces()
+	initChatInterfaces()
 }
 
 func initUserInterfaces() {
@@ -47,4 +49,8 @@ func initFriendInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/friend", Method: "POST", Handler: friend.AddFriendHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/friend", Method: "DELETE", Handler: friend.DeleteFriendHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/friend/reject", Method: "POST", Handler: friend.RejectFriendHandle})
+}
+func initChatInterfaces() {
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/chat/chatgpt", Method: "POST", Handler: chat.ChatGPTHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/chat/chatgpt_limit", Method: "GET", Handler: chat.ChatGPTLimitHandle})
 }

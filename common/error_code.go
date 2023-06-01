@@ -6,6 +6,7 @@ const (
 	ErrorInvalidParams
 	ErrorPassword
 	ErrorInner
+	ErrorLimitExceedeed
 )
 
 type BaseResponse struct {

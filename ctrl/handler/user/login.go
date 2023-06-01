@@ -30,7 +30,8 @@ type LoginRequest struct {
 
 type LoginResponse struct {
 	common.BaseResponse
-	Token string `json:"token"`
+	Token      string `json:"token"`
+	PrivateKey string `json:"private_key"`
 }
 
 func (h *LoginHandler) BindReq(c *gin.Context) error {
@@ -84,4 +85,5 @@ func (h *LoginHandler) Process() {
 	}
 
 	h.Resp.Token = t
+	h.Resp.PrivateKey = user.PrivateKey
 }
