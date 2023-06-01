@@ -3,9 +3,10 @@ package conf
 var Conf *Config
 
 type Config struct {
-	ServerConf ServerConfig `mapstructure:"server"`
-	DBConf     DBConfig     `mapstructure:"database"`
-	LoggerConf LoggerConfig `mapstructure:"logger"`
+	ServerConf       ServerConfig       `mapstructure:"server"`
+	DBConf           DBConfig           `mapstructure:"database"`
+	ValidateCodeConf ValidateCodeConfig `mapstructure:"validate_code"`
+	LoggerConf       LoggerConfig       `mapstructure:"logger"`
 }
 
 type ServerConfig struct {
@@ -19,6 +20,13 @@ type DBConfig struct {
 	Port     int    `mapstructure:"port"`
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
+}
+
+type ValidateCodeConfig struct {
+	Server    string `mapstructure:"server"`
+	AppKey    string `mapstructure:"appkey"`
+	AppSecret string `mapstructure:"appsecret"`
+	AppCode   string `mapstructure:"appcode"`
 }
 
 type LoggerConfig struct {

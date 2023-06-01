@@ -24,6 +24,7 @@ func initUserInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/users", Method: "GET", Handler: user.GetUserHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/follow", Method: "POST", Handler: user.FollowHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/follow", Method: "DELETE", Handler: user.CancelFollowHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/validate_code", Method: "POST", Handler: user.ValidateCodeHandle})
 }
 
 func initPostInterfaces() {
