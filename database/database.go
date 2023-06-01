@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"gorm.io/gorm/logger"
 
 	"github.com/Base-Technology/base-backend-lite/conf"
 	"github.com/pkg/errors"
@@ -19,7 +20,9 @@ func InitDatabase() error {
 		conf.Conf.DBConf.IP,
 		conf.Conf.DBConf.Port,
 	)
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return errors.Errorf("open database error, %v", err)
 	}
