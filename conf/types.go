@@ -6,6 +6,7 @@ type Config struct {
 	ServerConf       ServerConfig       `mapstructure:"server"`
 	DBConf           DBConfig           `mapstructure:"database"`
 	ValidateCodeConf ValidateCodeConfig `mapstructure:"validate_code"`
+	IMTPConf         IMTPConfig         `mapstructure:"imtp"`
 	LoggerConf       LoggerConfig       `mapstructure:"logger"`
 }
 
@@ -27,6 +28,11 @@ type ValidateCodeConfig struct {
 	AppKey    string `mapstructure:"appkey"`
 	AppSecret string `mapstructure:"appsecret"`
 	AppCode   string `mapstructure:"appcode"`
+}
+
+type IMTPConfig struct {
+	APPServer string `mapstructure:"app_server"`
+	APIServer string `mapstructure:"api_server"`
 }
 
 type LoggerConfig struct {
