@@ -80,12 +80,12 @@ type Collect struct {
 type ChatGPTLimit struct {
 	UserID uint `gorm:"primaryKey"`
 
-	DailyLeftCallCount  int `gorm:"default:100"`
-	DailyLeftTokenCount int `gorm:"default:8000"`
+	DailyLeftCallCount  int `gorm:"default:50"`
+	DailyLeftTokenCount int `gorm:"default:4000"`
 	TotalTokenLeftCount int `gorm:"default:20000"`
 
-	MaxDailyCallCount  int `gorm:"default:100"`
-	MaxDailyTokenCount int `gorm:"default:8000"`
+	MaxDailyCallCount  int `gorm:"default:50"`
+	MaxDailyTokenCount int `gorm:"default:4000"`
 
 	LastResetTime time.Time
 }
