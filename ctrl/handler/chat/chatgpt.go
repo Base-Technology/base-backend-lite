@@ -98,16 +98,18 @@ func (h *ChatGPTHandler) Process() {
 		limit.LastResetTime = time.Now()
 	}
 
+	// fill in limit first, if there is error, this will be the response
+	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
+		DailyLeftCallCount:  limit.DailyLeftCallCount,
+		DailyLeftTokenCount: limit.DailyLeftTokenCount,
+		TotalTokenLeftCount: limit.TotalTokenLeftCount,
+		MaxDailyCallCount:   limit.MaxDailyCallCount,
+		MaxDailyTokenCount:  limit.MaxDailyTokenCount,
+	}
+
 	if !enoughBalance(limit, &h.Req.Prompt) {
 		seelog.Errorf("limit exceedeed: %+v", limit)
 		h.SetError(common.ErrorLimitExceedeed, "limit exceedeed")
-		h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
-			DailyLeftCallCount:  limit.DailyLeftCallCount,
-			DailyLeftTokenCount: limit.DailyLeftTokenCount,
-			TotalTokenLeftCount: limit.TotalTokenLeftCount,
-			MaxDailyCallCount:   limit.MaxDailyCallCount,
-			MaxDailyTokenCount:  limit.MaxDailyTokenCount,
-		}
 		return
 	}
 
@@ -141,6 +143,7 @@ func (h *ChatGPTHandler) Process() {
 	updateBalance(limit, &proxy_resp.Data)
 	//fmt.Println(proxy_resp.Data)
 	h.Resp.Response = proxy_resp.Data
+	// fill in the updated limit
 	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
 		DailyLeftCallCount:  limit.DailyLeftCallCount,
 		DailyLeftTokenCount: limit.DailyLeftTokenCount,
