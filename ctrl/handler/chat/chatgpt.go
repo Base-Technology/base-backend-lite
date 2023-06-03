@@ -117,7 +117,7 @@ func (h *ChatGPTHandler) Process() {
 	resp, err := http.Get(url)
 	if err != nil {
 		seelog.Errorf("http get error: %v", err)
-		h.SetError(common.ErrorInner, "internal error")
+		h.SetError(common.ErrorInner, "http get error")
 		return
 	}
 
@@ -125,14 +125,14 @@ func (h *ChatGPTHandler) Process() {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		seelog.Errorf("read response body error: %v", err)
-		h.SetError(common.ErrorInner, "internal error")
+		h.SetError(common.ErrorInner, "read response body error")
 		return
 	}
 
 	proxy_resp := &ChatGPTProxyResponse{}
-	if err := json.Unmarshal(body, proxy_resp); err != nil {
-		seelog.Errorf("unmarshal response body error: %v", err)
-		h.SetError(common.ErrorInner, "internal error")
+	if err = json.Unmarshal(body, proxy_resp); err != nil {
+		seelog.Errorf("unmarshal response body error: %v, %v", err, string(body))
+		h.SetError(common.ErrorInner, "unmarshal response body error")
 		return
 	}
 
