@@ -6,6 +6,7 @@ import (
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
+	"github.com/Base-Technology/base-backend-lite/school"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/Base-Technology/base-backend-lite/token"
 	"github.com/gin-gonic/gin"
@@ -31,7 +32,9 @@ type LoginRequest struct {
 type LoginResponse struct {
 	common.BaseResponse
 	Token      string `json:"token"`
+	UserID     int    `json:"user_id"`
 	PrivateKey string `json:"private_key"`
+	GroupID    string `json:"group_id"`
 }
 
 func (h *LoginHandler) BindReq(c *gin.Context) error {
@@ -84,6 +87,15 @@ func (h *LoginHandler) Process() {
 		return
 	}
 
+	groupID, err := school.GetGroupIDByName(user.School)
+	if err != nil {
+		msg := fmt.Sprintf("get group id error, %v", err)
+		h.SetError(common.ErrorInner, msg)
+		return
+	}
+
 	h.Resp.Token = t
+	h.Resp.UserID = int(user.ID)
 	h.Resp.PrivateKey = user.PrivateKey
+	h.Resp.GroupID = groupID
 }

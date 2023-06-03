@@ -26,15 +26,15 @@ func InitSchoolGroup() error {
 	}
 	schools = make(map[string]*School)
 	for _, s := range schoolList {
-		schools[s.ID] = s
+		schools[s.Name] = s
 	}
 	return nil
 }
 
-func InviteUserToSchoolGroup(address, schoolID string) error {
-	school, ok := schools[schoolID]
+func InviteUserToSchoolGroup(address, name string) error {
+	school, ok := schools[name]
 	if !ok {
-		return errors.Errorf("school [%s] not found", schoolID)
+		return errors.Errorf("school [%s] not found", name)
 	}
 	userID := imtp.GetUserIDFromAddress(address)
 	token, _, err := imtp.Login(conf.Conf.IMTPConf.AdminPrivateKey)
@@ -45,4 +45,12 @@ func InviteUserToSchoolGroup(address, schoolID string) error {
 		return err
 	}
 	return nil
+}
+
+func GetGroupIDByName(name string) (string, error) {
+	school, ok := schools[name]
+	if !ok {
+		return "", errors.Errorf("school [%s] not found", name)
+	}
+	return school.GroupID, nil
 }

@@ -114,6 +114,7 @@ func (h *RegisterHandler) Process() {
 		Area:       h.Req.Area,
 		School:     h.Req.School,
 		PrivateKey: kBytes,
+		IMTPUserID: imtp.GetUserIDFromAddress(address),
 	}
 	if err := database.GetInstance().Create(user).Error; err != nil {
 		msg := fmt.Sprintf("insert into database error, %v", err)
