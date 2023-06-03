@@ -5,8 +5,9 @@ var Conf *Config
 type Config struct {
 	ServerConf       ServerConfig       `mapstructure:"server"`
 	DBConf           DBConfig           `mapstructure:"database"`
-	ValidateCodeConf ValidateCodeConfig `mapstructure:"validate_code"`
 	LoggerConf       LoggerConfig       `mapstructure:"logger"`
+	ChatGPTProxyConf ChatGPTProxyConfig `mapstructure:"chatgpt_porxy"`
+	ValidateCodeConf ValidateCodeConfig `mapstructure:"validate_code"`
 }
 
 type ServerConfig struct {
@@ -31,6 +32,11 @@ type ValidateCodeConfig struct {
 
 type LoggerConfig struct {
 	Level string `mapstructure:"level"`
+}
+
+type ChatGPTProxyConfig struct {
+	IP   string `mapstructure:"ip"`
+	Port int    `mapstructure:"port"`
 }
 
 const (
