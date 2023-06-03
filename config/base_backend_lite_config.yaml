@@ -15,6 +15,11 @@ validate_code:
   appsecret: xxxxxx
   appcode: xxx
 
+imtp:
+  app_server: https://xxx
+  api_server: https://xxx
+  admin_private_key: xxx
+
 logger:
   level: debug
 

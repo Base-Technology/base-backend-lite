@@ -14,6 +14,7 @@ type User struct {
 	Area         string `gorm:"size:20"`
 	School       string `gorm:"size:20;index"`
 	PrivateKey   string `gorm:"size:100"`
+	IMTPUserID   string `gorm:"size:100"`
 	Introduction string `gorm:"size:20"`
 	Avatar       string
 }

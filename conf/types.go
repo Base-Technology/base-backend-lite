@@ -5,6 +5,7 @@ var Conf *Config
 type Config struct {
 	ServerConf       ServerConfig       `mapstructure:"server"`
 	DBConf           DBConfig           `mapstructure:"database"`
+	IMTPConf         IMTPConfig         `mapstructure:"imtp"`
 	LoggerConf       LoggerConfig       `mapstructure:"logger"`
 	ChatGPTProxyConf ChatGPTProxyConfig `mapstructure:"chatgpt_porxy"`
 	ValidateCodeConf ValidateCodeConfig `mapstructure:"validate_code"`
@@ -28,6 +29,12 @@ type ValidateCodeConfig struct {
 	AppKey    string `mapstructure:"appkey"`
 	AppSecret string `mapstructure:"appsecret"`
 	AppCode   string `mapstructure:"appcode"`
+}
+
+type IMTPConfig struct {
+	APPServer       string `mapstructure:"app_server"`
+	APIServer       string `mapstructure:"api_server"`
+	AdminPrivateKey string `mapstructure:"admin_private_key"`
 }
 
 type LoggerConfig struct {
