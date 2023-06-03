@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/pkg/errors"
 )
 
@@ -14,6 +15,7 @@ func SendHttpRequest(url, method string, header map[string]string, req, resp int
 	if err != nil {
 		return err
 	}
+	seelog.Infof("request url: %s, method: %s, body: %s", url, method, string(body))
 	request, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 	if err != nil {
 		return err
@@ -34,6 +36,7 @@ func SendHttpRequest(url, method string, header map[string]string, req, resp int
 	if err != nil {
 		return err
 	}
+	seelog.Infof("response body: %s", string(body))
 	if response.StatusCode != 200 {
 		return errors.Errorf("status [%d] not 200, body: %s", response.StatusCode, string(body))
 	}

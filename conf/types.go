@@ -31,8 +31,9 @@ type ValidateCodeConfig struct {
 }
 
 type IMTPConfig struct {
-	APPServer string `mapstructure:"app_server"`
-	APIServer string `mapstructure:"api_server"`
+	APPServer       string `mapstructure:"app_server"`
+	APIServer       string `mapstructure:"api_server"`
+	AdminPrivateKey string `mapstructure:"admin_private_key"`
 }
 
 type LoggerConfig struct {

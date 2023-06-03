@@ -7,8 +7,8 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Token  string `json:"token"`
-	UserID string `json:"userID"`
+	Token  interface{} `json:"token"`
+	UserID string      `json:"userID"`
 }
 
 type CreateGroupRequest struct {

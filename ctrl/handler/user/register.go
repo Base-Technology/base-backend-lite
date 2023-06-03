@@ -6,6 +6,8 @@ import (
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
+	"github.com/Base-Technology/base-backend-lite/imtp"
+	"github.com/Base-Technology/base-backend-lite/school"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -75,7 +77,6 @@ func (h *RegisterHandler) Process() {
 		h.SetError(common.ErrorInvalidParams, msg)
 		return
 	}
-	validateCodes.Delete(h.Req.Phone)
 	// hash the password
 	hp, err := bcrypt.GenerateFromPassword([]byte(h.Req.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -90,6 +91,21 @@ func (h *RegisterHandler) Process() {
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
+	kBytes := hexutil.Encode(crypto.FromECDSA(k))
+	// login to create the account
+	_, _, err = imtp.Login(kBytes[2:])
+	if err != nil {
+		msg := fmt.Sprintf("login imtp error, %v", err)
+		h.SetError(common.ErrorInner, msg)
+		return
+	}
+	// invite to imtp group
+	address := crypto.PubkeyToAddress(k.PublicKey).Hex()
+	if err := school.InviteUserToSchoolGroup(address, h.Req.School); err != nil {
+		msg := fmt.Sprintf("invite user to imtp group error, %v", err)
+		h.SetError(common.ErrorInner, msg)
+		return
+	}
 	// insert into database
 	user := &database.User{
 		Phone:      h.Req.Phone,
@@ -97,11 +113,12 @@ func (h *RegisterHandler) Process() {
 		Password:   string(hp),
 		Area:       h.Req.Area,
 		School:     h.Req.School,
-		PrivateKey: hexutil.Encode(crypto.FromECDSA(k)),
+		PrivateKey: kBytes,
 	}
 	if err := database.GetInstance().Create(user).Error; err != nil {
 		msg := fmt.Sprintf("insert into database error, %v", err)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
+	validateCodes.Delete(h.Req.Phone)
 }
