@@ -5,6 +5,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/ethereum/go-ethereum v1.11.6
 	github.com/gin-gonic/gin v1.9.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/petermattis/goid v0.0.0-20230518223814-80aa455d8761
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.15.0
