@@ -11,3 +11,7 @@ database:
 
 logger:
   level: debug
+
+chatgpt_porxy:
+  ip: 147.182.251.92
+  port: 5000
