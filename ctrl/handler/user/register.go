@@ -31,6 +31,7 @@ type RegisterRequest struct {
 	Area         string `json:"area" binding:"required"`
 	School       string `json:"school" binding:"required"`
 	ValidateCode string `json:"validate_code" binding:"required"`
+	Avatar       string `json:"avatar"`
 }
 
 type RegisterResponse struct {
@@ -98,6 +99,7 @@ func (h *RegisterHandler) Process() {
 		Area:       h.Req.Area,
 		School:     h.Req.School,
 		PrivateKey: hexutil.Encode(crypto.FromECDSA(k)),
+		Avatar:     h.Req.Avatar,
 	}
 	if err := database.GetInstance().Create(user).Error; err != nil {
 		msg := fmt.Sprintf("insert into database error, %v", err)
