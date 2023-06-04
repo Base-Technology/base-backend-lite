@@ -8,6 +8,7 @@ import (
 	_ "github.com/Base-Technology/base-backend-lite/ctrl"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/gin"
+	"github.com/Base-Technology/base-backend-lite/school"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 )
 
@@ -22,6 +23,11 @@ func main() {
 
 	if err := database.InitDatabase(); err != nil {
 		seelog.Errorf("init database error, %v", err)
+		return
+	}
+
+	if err := school.InitSchoolGroup(); err != nil {
+		seelog.Errorf("init school group error, %v", err)
 		return
 	}
 

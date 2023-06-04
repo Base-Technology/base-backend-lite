@@ -3,9 +3,12 @@ package conf
 var Conf *Config
 
 type Config struct {
-	ServerConf ServerConfig `mapstructure:"server"`
-	DBConf     DBConfig     `mapstructure:"database"`
-	LoggerConf LoggerConfig `mapstructure:"logger"`
+	ServerConf       ServerConfig       `mapstructure:"server"`
+	DBConf           DBConfig           `mapstructure:"database"`
+	IMTPConf         IMTPConfig         `mapstructure:"imtp"`
+	LoggerConf       LoggerConfig       `mapstructure:"logger"`
+	ChatGPTProxyConf ChatGPTProxyConfig `mapstructure:"chatgpt_porxy"`
+	ValidateCodeConf ValidateCodeConfig `mapstructure:"validate_code"`
 }
 
 type ServerConfig struct {
@@ -21,8 +24,26 @@ type DBConfig struct {
 	Password string `mapstructure:"password"`
 }
 
+type ValidateCodeConfig struct {
+	Server    string `mapstructure:"server"`
+	AppKey    string `mapstructure:"appkey"`
+	AppSecret string `mapstructure:"appsecret"`
+	AppCode   string `mapstructure:"appcode"`
+}
+
+type IMTPConfig struct {
+	APPServer       string `mapstructure:"app_server"`
+	APIServer       string `mapstructure:"api_server"`
+	AdminPrivateKey string `mapstructure:"admin_private_key"`
+}
+
 type LoggerConfig struct {
 	Level string `mapstructure:"level"`
+}
+
+type ChatGPTProxyConfig struct {
+	IP   string `mapstructure:"ip"`
+	Port int    `mapstructure:"port"`
 }
 
 const (

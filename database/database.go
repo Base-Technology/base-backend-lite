@@ -3,12 +3,11 @@ package database
 import (
 	"fmt"
 
-	"gorm.io/gorm/logger"
-
 	"github.com/Base-Technology/base-backend-lite/conf"
 	"github.com/pkg/errors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB

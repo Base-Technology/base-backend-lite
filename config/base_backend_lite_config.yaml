@@ -9,5 +9,20 @@ database:
   username: root
   password: xxxxxx
 
+validate_code:
+  server: https://xxx
+  appkey: xxxxxx
+  appsecret: xxxxxx
+  appcode: xxx
+
+imtp:
+  app_server: https://xxx
+  api_server: https://xxx
+  admin_private_key: xxx
+
 logger:
   level: debug
+
+chatgpt_porxy:
+  ip: 147.182.251.92
+  port: 5000

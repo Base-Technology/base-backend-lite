@@ -14,6 +14,7 @@ type User struct {
 	Area           string `gorm:"size:20"`
 	School         string `gorm:"size:20;index"`
 	PrivateKey     string `gorm:"size:100"`
+	IMTPUserID     string `gorm:"size:100"`
 	Introduction   string `gorm:"size:20"`
 	Avatar         string
 	Friend         []*User          `gorm:"many2many:user_friend,constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -89,12 +90,12 @@ type FriendRequest struct {
 type ChatGPTLimit struct {
 	UserID uint `gorm:"primaryKey"`
 
-	DailyLeftCallCount  int `gorm:"default:100"`
-	DailyLeftTokenCount int `gorm:"default:8000"`
+	DailyLeftCallCount  int `gorm:"default:50"`
+	DailyLeftTokenCount int `gorm:"default:4000"`
 	TotalTokenLeftCount int `gorm:"default:20000"`
 
-	MaxDailyCallCount  int `gorm:"default:100"`
-	MaxDailyTokenCount int `gorm:"default:8000"`
+	MaxDailyCallCount  int `gorm:"default:50"`
+	MaxDailyTokenCount int `gorm:"default:4000"`
 
 	LastResetTime time.Time
 }

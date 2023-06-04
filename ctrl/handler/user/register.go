@@ -6,6 +6,8 @@ import (
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
+	"github.com/Base-Technology/base-backend-lite/imtp"
+	"github.com/Base-Technology/base-backend-lite/school"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -25,11 +27,13 @@ type RegisterHandler struct {
 }
 
 type RegisterRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Phone    string `json:"phone" binding:"required"`
-	Area     string `json:"area" binding:"required"`
-	School   string `json:"school" binding:"required"`
+	Username     string `json:"username" binding:"required"`
+	Password     string `json:"password" binding:"required"`
+	Phone        string `json:"phone" binding:"required"`
+	Area         string `json:"area" binding:"required"`
+	School       string `json:"school" binding:"required"`
+	ValidateCode string `json:"validate_code" binding:"required"`
+	Avatar       string `json:"avatar"`
 }
 
 type RegisterResponse struct {
@@ -67,6 +71,13 @@ func (h *RegisterHandler) NeedVerifyToken() bool {
 }
 
 func (h *RegisterHandler) Process() {
+	// check the validate code
+	code, ok := validateCodes.Get(h.Req.Phone)
+	if !ok || code != h.Req.ValidateCode {
+		msg := fmt.Sprintf("validate code invalid")
+		h.SetError(common.ErrorInvalidParams, msg)
+		return
+	}
 	// hash the password
 	hp, err := bcrypt.GenerateFromPassword([]byte(h.Req.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -81,6 +92,21 @@ func (h *RegisterHandler) Process() {
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
+	kBytes := hexutil.Encode(crypto.FromECDSA(k))
+	// login to create the account
+	_, _, err = imtp.Login(kBytes[2:])
+	if err != nil {
+		msg := fmt.Sprintf("login imtp error, %v", err)
+		h.SetError(common.ErrorInner, msg)
+		return
+	}
+	// invite to imtp group
+	address := crypto.PubkeyToAddress(k.PublicKey).Hex()
+	if err := school.InviteUserToSchoolGroup(address, h.Req.School); err != nil {
+		msg := fmt.Sprintf("invite user to imtp group error, %v", err)
+		h.SetError(common.ErrorInner, msg)
+		return
+	}
 	// insert into database
 	user := &database.User{
 		Phone:      h.Req.Phone,
@@ -88,11 +114,14 @@ func (h *RegisterHandler) Process() {
 		Password:   string(hp),
 		Area:       h.Req.Area,
 		School:     h.Req.School,
-		PrivateKey: hexutil.Encode(crypto.FromECDSA(k)),
+		PrivateKey: kBytes,
+		IMTPUserID: imtp.GetUserIDFromAddress(address),
+		Avatar:     h.Req.Avatar,
 	}
 	if err := database.GetInstance().Create(user).Error; err != nil {
 		msg := fmt.Sprintf("insert into database error, %v", err)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
+	validateCodes.Delete(h.Req.Phone)
 }

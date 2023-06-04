@@ -9,14 +9,13 @@ import (
 	"time"
 
 	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/conf"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )
-
-const ChatGPTProxyURL = "http://147.182.251.92:5000/proxy/openai"
 
 type ChatGPTLimitDetail struct {
 	DailyLeftCallCount  int `json:"daily_left_call_count"`
@@ -99,25 +98,30 @@ func (h *ChatGPTHandler) Process() {
 		limit.LastResetTime = time.Now()
 	}
 
+	// fill in limit first, if there is error, this will be the response
+	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
+		DailyLeftCallCount:  limit.DailyLeftCallCount,
+		DailyLeftTokenCount: limit.DailyLeftTokenCount,
+		TotalTokenLeftCount: limit.TotalTokenLeftCount,
+		MaxDailyCallCount:   limit.MaxDailyCallCount,
+		MaxDailyTokenCount:  limit.MaxDailyTokenCount,
+	}
+
 	if !enoughBalance(limit, &h.Req.Prompt) {
 		seelog.Errorf("limit exceedeed: %+v", limit)
 		h.SetError(common.ErrorLimitExceedeed, "limit exceedeed")
-		h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
-			DailyLeftCallCount:  limit.DailyLeftCallCount,
-			DailyLeftTokenCount: limit.DailyLeftTokenCount,
-			TotalTokenLeftCount: limit.TotalTokenLeftCount,
-			MaxDailyCallCount:   limit.MaxDailyCallCount,
-			MaxDailyTokenCount:  limit.MaxDailyTokenCount,
-		}
 		return
 	}
 
-	url := fmt.Sprintf("%s?prompt=%s", ChatGPTProxyURL, url.QueryEscape(h.Req.Prompt))
+	url := fmt.Sprintf("http://%s:%d/proxy/openai?prompt=%s",
+		conf.Conf.ChatGPTProxyConf.IP,
+		conf.Conf.ChatGPTProxyConf.Port,
+		url.QueryEscape(h.Req.Prompt))
 	//fmt.Println(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		seelog.Errorf("http get error: %v", err)
-		h.SetError(common.ErrorInner, "internal error")
+		h.SetError(common.ErrorInner, "http get error")
 		return
 	}
 
@@ -125,20 +129,21 @@ func (h *ChatGPTHandler) Process() {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		seelog.Errorf("read response body error: %v", err)
-		h.SetError(common.ErrorInner, "internal error")
+		h.SetError(common.ErrorInner, "read response body error")
 		return
 	}
 
 	proxy_resp := &ChatGPTProxyResponse{}
-	if err := json.Unmarshal(body, proxy_resp); err != nil {
-		seelog.Errorf("unmarshal response body error: %v", err)
-		h.SetError(common.ErrorInner, "internal error")
+	if err = json.Unmarshal(body, proxy_resp); err != nil {
+		seelog.Errorf("unmarshal response body error: %v, %v", err, string(body))
+		h.SetError(common.ErrorInner, "unmarshal response body error")
 		return
 	}
 
 	updateBalance(limit, &proxy_resp.Data)
 	//fmt.Println(proxy_resp.Data)
 	h.Resp.Response = proxy_resp.Data
+	// fill in the updated limit
 	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
 		DailyLeftCallCount:  limit.DailyLeftCallCount,
 		DailyLeftTokenCount: limit.DailyLeftTokenCount,

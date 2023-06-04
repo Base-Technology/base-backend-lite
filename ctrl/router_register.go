@@ -23,9 +23,11 @@ func initUserInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/reset_password", Method: "POST", Handler: user.ResetPasswordHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/info", Method: "GET", Handler: user.GetInfoHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/info", Method: "PUT", Handler: user.SetInfoHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/user", Method: "GET", Handler: user.GetOtherUserHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/users", Method: "GET", Handler: user.GetUserHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/follow", Method: "POST", Handler: user.FollowHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/follow", Method: "DELETE", Handler: user.CancelFollowHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/validate_code", Method: "POST", Handler: user.ValidateCodeHandle})
 }
 
 func initPostInterfaces() {
