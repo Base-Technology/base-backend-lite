@@ -66,46 +66,47 @@ func (h *RequestAddFriendHandler) Process() {
 	var err error
 	var user *database.User
 	// 判断是否为好友
-	if err = database.GetInstance().Model(&database.User{}).Preload("Friend").Where("id = ?", h.Req.User.ID).Find(&user).Error; err != nil {
-		msg := fmt.Sprintf("get friend list error, %v", err)
+	if err := database.GetInstance().Model(&h.Req.User).Association("Friends").Find(&user, h.Req.Friendid); err != nil {
+		msg := fmt.Sprintf("Judge relationship error, %v", err)
+		seelog.Errorf("Judge relationship error, %v", err)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
-	friendList := user.Friend
-	for _, friend := range friendList {
-		if friend.ID == h.Req.Friendid {
-			msg := fmt.Sprintf("are already friend")
-			h.SetError(common.ErrorInner, msg)
-			return
-		}
+	if user.ID != 0 {
+		seelog.Errorf("are already friend")
+		h.SetError(common.ErrorInner, "are already friend")
+		return
 	}
 	// 查询是否有好友请求，如果有修改请求，更新数据库
 	var request *database.FriendRequest
 	if err = database.GetInstance().Model(&database.FriendRequest{}).Where("user_id = ? AND sender_ID = ?", h.Req.Friendid, h.Req.User.ID).Find(&request).Error; err != nil {
 		msg := fmt.Sprintf("get request error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
 
 	if request.UserID != 0 {
 		if request.Status == "pending" {
-			msg := fmt.Sprintf("request sent")
-			h.SetError(common.ErrorInner, msg)
+			seelog.Errorf("request sent")
+			h.SetError(common.ErrorInner, "request sent")
 			return
 		}
 		request.Status = "pending"
 		request.Message = h.Req.Message
 		if err := database.GetInstance().Model(&database.FriendRequest{}).Where("user_id = ? AND sender_ID = ?", h.Req.Friendid, h.Req.User.ID).Save(request).Error; err != nil {
-			msg := fmt.Sprintf("update database error, %v", err)
+			msg := fmt.Sprintf("update friendRequest error, %v", err)
+			seelog.Errorf(msg)
 			h.SetError(common.ErrorInner, msg)
 			return
 		}
 		return
 	}
-	// 添加好友请求，更新数据库
+	// 添加好友请求，插入数据库
 	addrequest := &database.FriendRequest{UserID: h.Req.Friendid, SenderID: h.Req.User.ID, Message: h.Req.Message, Name: h.Req.User.Name, Avatar: h.Req.User.Avatar, Status: "pending"}
 	if err := database.GetInstance().Create(addrequest).Error; err != nil {
 		msg := fmt.Sprintf("insert to database error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}

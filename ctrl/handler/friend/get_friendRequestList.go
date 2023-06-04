@@ -6,6 +6,7 @@ import (
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
+	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
 )
 
@@ -60,6 +61,7 @@ func (h *GetFriendRequestListHandler) Process() {
 
 	if err != nil {
 		msg := fmt.Sprintf("get friend request list error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}

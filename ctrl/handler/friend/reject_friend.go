@@ -67,23 +67,25 @@ func (h *RejectFriendHandler) Process() {
 	// 获取好友请求，判断请求状态是否待处理
 	if err = database.GetInstance().Model(&database.FriendRequest{}).Where("user_id = ? AND sender_ID = ?", h.Req.User.ID, h.Req.Senderid).Find(&request).Error; err != nil {
 		msg := fmt.Sprintf("get request error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
 	if request.UserID == 0 {
-		msg := fmt.Sprintf("not request")
-		h.SetError(common.ErrorInner, msg)
+		seelog.Errorf("not request")
+		h.SetError(common.ErrorInner, "not request")
 		return
 	}
 	if request.Status != "pending" {
-		msg := fmt.Sprintf("Request processed")
-		h.SetError(common.ErrorInner, msg)
+		seelog.Errorf("Request processed")
+		h.SetError(common.ErrorInner, "Request processed")
 		return
 	}
 	// 处理请求数据，修改数据库
 	request.Status = "declined"
 	if err := database.GetInstance().Model(&database.FriendRequest{}).Where("user_id = ? AND sender_ID = ?", h.Req.User.ID, h.Req.Senderid).Save(request).Error; err != nil {
-		msg := fmt.Sprintf("update database error, %v", err)
+		msg := fmt.Sprintf("update FriendRequest error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}

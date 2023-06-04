@@ -62,38 +62,54 @@ func (h *DeleteFriendHandler) NeedVerifyToken() bool {
 }
 
 func (h *DeleteFriendHandler) Process() {
-	var err error
-
 	var friend *database.User
 	// 判断是否为好友
-	if err = database.GetInstance().Model(&database.User{}).Preload("Friend").Where("id = ?", h.Req.Friendid).Find(&friend).Error; err != nil {
-		msg := fmt.Sprintf("get user info error, %v", err)
+	if err := database.GetInstance().Model(&h.Req.User).Association("Friends").Find(&friend, h.Req.Friendid); err != nil {
+		msg := fmt.Sprintf("Judge relationship error, %v", err)
+		seelog.Errorf("Judge relationship error, %v", err)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
-	isFriend := false
-	for _, friendinfo := range friend.Friend {
-		if friendinfo.ID == friendinfo.ID {
-			isFriend = true
-			break
-		}
-	}
-	if !isFriend {
-		msg := fmt.Sprintf("are not friends")
-		h.SetError(common.ErrorInner, msg)
+	if friend.ID == 0 {
+		seelog.Errorf("are not friends")
+		h.SetError(common.ErrorInner, "are not friends")
 		return
 	}
 	// 删除好友，更新数据库
-	database.GetInstance().Model(h.Req.User).Association("Friend").Delete(friend)
-	database.GetInstance().Model(friend).Association("Friend").Delete(h.Req.User)
-	if err := database.GetInstance().Model(&database.User{}).Where("id = ?", friend.ID).Save(friend).Error; err != nil {
-		msg := fmt.Sprintf("update database error, %v", err)
+	tx := database.GetInstance().Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	if err := tx.Model(h.Req.User).Association("Friends").Delete(friend); err != nil {
+		msg := fmt.Sprintf("delete friend error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
 		return
 	}
-	if err := database.GetInstance().Model(&database.User{}).Where("id = ?", h.Req.User.ID).Save(h.Req.User).Error; err != nil {
-		msg := fmt.Sprintf("update database error, %v", err)
+	if err := tx.Model(friend).Association("Friends").Delete(h.Req.User); err != nil {
+		msg := fmt.Sprintf("delete friend error, %v", err)
+		seelog.Errorf(friend.CreatedAt.Month().String())
 		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
 		return
 	}
+	if err := tx.Model(&database.User{}).Where("id = ?", friend.ID).Save(friend).Error; err != nil {
+		msg := fmt.Sprintf("update friend error, %v", err)
+		seelog.Errorf(msg)
+		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
+		return
+	}
+	if err := tx.Model(&database.User{}).Where("id = ?", h.Req.User.ID).Save(h.Req.User).Error; err != nil {
+		msg := fmt.Sprintf("update user error, %v", err)
+		seelog.Errorf(msg)
+		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
+
 }

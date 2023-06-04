@@ -17,7 +17,7 @@ type User struct {
 	IMTPUserID     string `gorm:"size:100"`
 	Introduction   string `gorm:"size:20"`
 	Avatar         string
-	Friend         []*User          `gorm:"many2many:user_friend,constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Friends        []*User          `gorm:"many2many:user_friend,constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	FriendRequests []*FriendRequest `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 

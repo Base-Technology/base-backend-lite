@@ -6,6 +6,7 @@ import (
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
+	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
 )
 
@@ -57,11 +58,12 @@ func (h *GetFriendListHandler) NeedVerifyToken() bool {
 func (h *GetFriendListHandler) Process() {
 	var err error
 	var user *database.User
-	if err = database.GetInstance().Model(&database.User{}).Preload("Friend").Where("id = ?", h.Req.User.ID).Find(&user).Error; err != nil {
+	if err = database.GetInstance().Model(&database.User{}).Preload("Friends").Where("id = ?", h.Req.User.ID).Find(&user).Error; err != nil {
 		msg := fmt.Sprintf("get friend list error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
 
-	h.Resp.FriendList = user.Friend
+	h.Resp.FriendList = user.Friends
 }

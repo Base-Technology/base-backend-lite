@@ -67,44 +67,83 @@ func (h *AddFriendHandler) Process() {
 	var request *database.FriendRequest
 	if err = database.GetInstance().Model(&database.FriendRequest{}).Where("user_id = ? AND sender_ID = ?", h.Req.User.ID, h.Req.Senderid).Find(&request).Error; err != nil {
 		msg := fmt.Sprintf("get request error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
 	if request.UserID == 0 {
-		msg := fmt.Sprintf("not request")
-		h.SetError(common.ErrorInner, msg)
+		seelog.Errorf("not request")
+		h.SetError(common.ErrorInner, "not request")
 		return
 	}
 	if request.Status != "pending" {
-		msg := fmt.Sprintf("Request processed")
-		h.SetError(common.ErrorInner, msg)
+		seelog.Errorf("Request processed")
+		h.SetError(common.ErrorInner, "Request processed")
 		return
 	}
 	var sender *database.User
 	// 添加好友，更新数据库User表
 	if err = database.GetInstance().Model(&database.User{}).Where("id = ?", h.Req.Senderid).Find(&sender).Error; err != nil {
 		msg := fmt.Sprintf("get user info error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
 
-	database.GetInstance().Model(sender).Association("Friend").Append(h.Req.User)
-	database.GetInstance().Model(h.Req.User).Association("Friend").Append(sender)
-	if err := database.GetInstance().Model(&database.User{}).Where("id = ?", h.Req.Senderid).Save(sender).Error; err != nil {
-		msg := fmt.Sprintf("update database error, %v", err)
+	tx := database.GetInstance().Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Model(sender).Association("Friends").Append(h.Req.User); err != nil {
+		msg := fmt.Sprintf("update sender`s friend error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
 		return
 	}
-	if err := database.GetInstance().Model(&database.User{}).Where("id = ?", h.Req.User.ID).Save(h.Req.User).Error; err != nil {
-		msg := fmt.Sprintf("update database error, %v", err)
+
+	if err := tx.Model(h.Req.User).Association("Friends").Append(sender); err != nil {
+		msg := fmt.Sprintf("update user`s friend error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
 		return
 	}
-	// 更新数据库FriendRequest表格
+
+	if err := tx.Model(&database.User{}).Where("id = ?", h.Req.Senderid).Save(sender).Error; err != nil {
+		msg := fmt.Sprintf("save sender error, %v", err)
+		seelog.Errorf(msg)
+		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
+		return
+	}
+
+	if err := tx.Model(&database.User{}).Where("id = ?", h.Req.User.ID).Save(h.Req.User).Error; err != nil {
+		msg := fmt.Sprintf("save user error, %v", err)
+		seelog.Errorf(msg)
+		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
+		return
+	}
+
 	request.Status = "accepted"
-	if err := database.GetInstance().Model(&database.FriendRequest{}).Where("user_id = ? AND sender_ID = ?", h.Req.User.ID, h.Req.Senderid).Save(request).Error; err != nil {
-		msg := fmt.Sprintf("update database error, %v", err)
+	if err := tx.Model(&database.FriendRequest{}).Where("user_id = ? AND sender_ID = ?", h.Req.User.ID, h.Req.Senderid).Save(request).Error; err != nil {
+		msg := fmt.Sprintf("update request error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
 		return
 	}
+
+	if err := tx.Commit().Error; err != nil {
+		msg := fmt.Sprintf("update database error, %v", err)
+		seelog.Errorf(msg)
+		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
+		return
+	}
+
 }
