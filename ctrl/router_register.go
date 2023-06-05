@@ -3,6 +3,7 @@ package ctrl
 import (
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/chat"
+	"github.com/Base-Technology/base-backend-lite/ctrl/handler/friend"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/group"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/post"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler/user"
@@ -12,6 +13,7 @@ func init() {
 	initUserInterfaces()
 	initPostInterfaces()
 	initGroupInterfaces()
+	initFriendInterfaces()
 	initChatInterfaces()
 }
 
@@ -42,6 +44,14 @@ func initGroupInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group/user", Method: "GET", Handler: group.GetGroupUserHandle})
 }
 
+func initFriendInterfaces() {
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/friend", Method: "GET", Handler: friend.GetFriendListHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/friend/request", Method: "GET", Handler: friend.GetFriendRequestListHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/friend/request", Method: "POST", Handler: friend.RequestAddFriendHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/friend", Method: "POST", Handler: friend.AddFriendHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/friend", Method: "DELETE", Handler: friend.DeleteFriendHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/friend/reject", Method: "POST", Handler: friend.RejectFriendHandle})
+}
 func initChatInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/chat/chatgpt", Method: "POST", Handler: chat.ChatGPTHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/chat/chatgpt_limit", Method: "GET", Handler: chat.ChatGPTLimitHandle})

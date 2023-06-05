@@ -8,15 +8,17 @@ import (
 
 type User struct {
 	gorm.Model
-	Phone        string `gorm:"size:11;unique"`
-	Name         string `gorm:"size:20"`
-	Password     string `gorm:"size:100"`
-	Area         string `gorm:"size:20"`
-	School       string `gorm:"size:20;index"`
-	PrivateKey   string `gorm:"size:100"`
-	IMTPUserID   string `gorm:"size:100"`
-	Introduction string `gorm:"size:20"`
-	Avatar       string
+	Phone          string `gorm:"size:11;unique"`
+	Name           string `gorm:"size:20"`
+	Password       string `gorm:"size:100"`
+	Area           string `gorm:"size:20"`
+	School         string `gorm:"size:20;index"`
+	PrivateKey     string `gorm:"size:100"`
+	IMTPUserID     string `gorm:"size:100"`
+	Introduction   string `gorm:"size:20"`
+	Avatar         string
+	Friends        []*User          `gorm:"many2many:user_friend,constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	FriendRequests []*FriendRequest `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Post struct {
@@ -76,7 +78,15 @@ type Collect struct {
 	User *User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Post *Post `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
-
+type FriendRequest struct {
+	gorm.Model
+	UserID   uint
+	SenderID uint
+	Message  string
+	Name     string `gorm:"size:20"`
+	Avatar   string
+	Status   string //pending, accepted, declined
+}
 type ChatGPTLimit struct {
 	UserID uint `gorm:"primaryKey"`
 
