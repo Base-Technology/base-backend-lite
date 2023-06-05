@@ -42,8 +42,7 @@ type LoggerConfig struct {
 }
 
 type ChatGPTProxyConfig struct {
-	IP   string `mapstructure:"ip"`
-	Port int    `mapstructure:"port"`
+	Url string `mapstructure:"url"`
 }
 
 const (
