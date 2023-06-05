@@ -11,7 +11,9 @@ docker-compose up -d
 
 ## 2. 启动base-backend-lite
 
-修改`config/base_backend_lite_config.yaml`中数据库`database`中的相关配置，之后使用以下命令启动后端服务。
+修改`config/base_backend_lite_config.yaml`中数据库`database`中的相关配置.
+
+之后使用以下命令启动后端服务。
 
 ```
 go run main.go
