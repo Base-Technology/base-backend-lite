@@ -90,12 +90,12 @@ type FriendRequest struct {
 type ChatGPTLimit struct {
 	UserID uint `gorm:"primaryKey"`
 
-	DailyLeftCallCount  int `gorm:"default:50"`
-	DailyLeftTokenCount int `gorm:"default:4000"`
-	TotalTokenLeftCount int `gorm:"default:20000"`
+	DailyLeftCallCount  int `gorm:"default:20"`
+	DailyLeftTokenCount int `gorm:"default:12000"`
+	TotalTokenLeftCount int `gorm:"default:60000"`
 
-	MaxDailyCallCount  int `gorm:"default:50"`
-	MaxDailyTokenCount int `gorm:"default:4000"`
+	MaxDailyCallCount  int `gorm:"default:20"`
+	MaxDailyTokenCount int `gorm:"default:12000"`
 
 	LastResetTime time.Time
 }
