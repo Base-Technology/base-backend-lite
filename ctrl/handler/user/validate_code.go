@@ -1,11 +1,8 @@
 package user
 
 import (
-	"bytes"
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"sync"
 	"time"
@@ -97,33 +94,12 @@ func (h *ValidateCodeHandler) send(code string) error {
 
 	rawString := fmt.Sprintf("%s%s%d", request.AppKey, request.AppSecret, request.Timestamp)
 	request.Sign = fmt.Sprintf("%x", md5.Sum([]byte(rawString)))
-	body, err := json.Marshal(request)
-	if err != nil {
+	response := &SendValidateCodeResponse{}
+	if err := utils.SendHttpRequest(conf.Conf.ValidateCodeConf.Server, http.MethodPost, nil, request, response); err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPost, conf.Conf.ValidateCodeConf.Server, bytes.NewBuffer(body))
-	if err != nil {
-		return err
-	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return errors.Errorf("send validate code error")
-	}
-	body, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	sendResp := &SendValidateCodeResp{}
-	if err := json.Unmarshal(body, sendResp); err != nil {
-		return err
-	}
-	if sendResp.Code != "00000" {
-		return errors.Errorf("%s", sendResp.Desc)
+	if response.Code != "00000" {
+		return errors.Errorf("%s", response.Desc)
 	}
 	return nil
 }
@@ -138,7 +114,7 @@ type SendValidateCodeRequest struct {
 	Sign      string `json:"sign"`
 }
 
-type SendValidateCodeResp struct {
+type SendValidateCodeResponse struct {
 	Code string `json:"code"`
 	Desc string `json:"desc"`
 }

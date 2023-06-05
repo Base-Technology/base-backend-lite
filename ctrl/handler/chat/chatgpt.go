@@ -113,9 +113,8 @@ func (h *ChatGPTHandler) Process() {
 		return
 	}
 
-	url := fmt.Sprintf("http://%s:%d/proxy/openai?prompt=%s",
-		conf.Conf.ChatGPTProxyConf.IP,
-		conf.Conf.ChatGPTProxyConf.Port,
+	url := fmt.Sprintf("%s?prompt=%s",
+		conf.Conf.ChatGPTProxyConf.Url,
 		url.QueryEscape(h.Req.Prompt))
 	//fmt.Println(url)
 	resp, err := http.Get(url)

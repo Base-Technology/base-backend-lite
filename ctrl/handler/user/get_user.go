@@ -36,6 +36,7 @@ type UserDeatail struct {
 	School       string `json:"school"`
 	Introduction string `json:"introduction"`
 	Avatar       string `json:"avatar"`
+	IMTPUserID   string `json:"imtp_user_id"`
 }
 
 func (h *GetUserHandler) BindReq(c *gin.Context) error {
