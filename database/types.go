@@ -19,6 +19,7 @@ type User struct {
 	Avatar         string
 	Friends        []*User          `gorm:"many2many:user_friend,constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	FriendRequests []*FriendRequest `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Groups         []*Group         `gorm:"many2many:user_group,constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
 
 type Post struct {
@@ -98,4 +99,13 @@ type ChatGPTLimit struct {
 	MaxDailyTokenCount int `gorm:"default:12000"`
 
 	LastResetTime time.Time
+}
+
+type Group struct {
+	gorm.Model
+	Name        string
+	Description string
+	CreatorID   uint
+	Members     []*User `gorm:"many2many:user_group,constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Avatar      string
 }
