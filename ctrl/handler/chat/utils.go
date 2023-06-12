@@ -15,6 +15,15 @@ func max(a, b int) int {
 	return b
 }
 
+// reset limit if last reset time is more than 24 hours
+func resetBalance(limit *database.ChatGPTLimit) {
+	if time.Since(limit.LastResetTime).Hours() > 24 {
+		limit.DailyLeftCallCount = limit.MaxDailyCallCount
+		limit.DailyLeftTokenCount = limit.MaxDailyTokenCount
+		limit.LastResetTime = time.Now()
+	}
+}
+
 func updateBalance(limit *database.ChatGPTLimit, response *string) {
 	// TODO: use tokenizer from openai to count token
 	tokenCount := len(*response)
@@ -35,10 +44,23 @@ func enoughBalance(limit *database.ChatGPTLimit, query *string) bool {
 
 // increase balance for referer
 func IncreaseBalanceForReferer(referrer_id uint) {
+	tx := database.GetInstance().Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+		if err := tx.Commit().Error; err != nil {
+			msg := fmt.Sprintf("IncreaseBalanceForReferer: UserId=%v commit error [%v]", referrer_id, err)
+			seelog.Errorf(msg)
+			tx.Rollback()
+		}
+	}()
+
 	limit := &database.ChatGPTLimit{}
-	if err := database.GetInstance().Where(database.ChatGPTLimit{UserID: referrer_id}).First(&limit).Error; err != nil {
+	if err := tx.Where(database.ChatGPTLimit{UserID: referrer_id}).First(limit).Error; err != nil {
 		msg := fmt.Sprintf("IncreaseBalanceForReferer: UserId=%v not found [%v]", referrer_id, err)
 		seelog.Errorf(msg)
+		tx.Rollback()
 		return
 	}
 	// increase maximum by 25% & refresh daily limit
@@ -48,5 +70,10 @@ func IncreaseBalanceForReferer(referrer_id uint) {
 	limit.DailyLeftCallCount = limit.MaxDailyCallCount
 	limit.DailyLeftTokenCount = limit.MaxDailyTokenCount
 	limit.LastResetTime = time.Now()
-	database.GetInstance().Save(limit)
+	if err := tx.Save(limit).Error; err != nil {
+		msg := fmt.Sprintf("IncreaseBalanceForReferer: UserId=%v save error [%v]", referrer_id, err)
+		seelog.Errorf(msg)
+		tx.Rollback()
+		return
+	}
 }
