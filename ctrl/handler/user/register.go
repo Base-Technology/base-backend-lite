@@ -5,6 +5,7 @@ import (
 
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/handler/chat"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/imtp"
 	"github.com/Base-Technology/base-backend-lite/school"
@@ -34,6 +35,7 @@ type RegisterRequest struct {
 	School       string `json:"school" binding:"required"`
 	ValidateCode string `json:"validate_code" binding:"required"`
 	Avatar       string `json:"avatar"`
+	ReferrerId   uint   `json:"referrer_id"`
 }
 
 type RegisterResponse struct {
@@ -124,4 +126,9 @@ func (h *RegisterHandler) Process() {
 		return
 	}
 	validateCodes.Delete(h.Req.Phone)
+
+	// increase balance for referrer
+	if h.Req.ReferrerId != 0 {
+		chat.IncreaseBalanceForReferer(h.Req.ReferrerId)
+	}
 }
