@@ -44,8 +44,9 @@ type Comment struct {
 	gorm.Model
 	PostID           uint
 	CreatorID        uint
-	CommentPointedID uint
+	CommentPointedID *uint
 	Content          string
+	Level            uint
 
 	Post           *Post    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Creator        *User    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -68,6 +69,14 @@ type Like struct {
 
 	User *User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Post *Post `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+}
+type Likecomment struct {
+	gorm.Model
+	UserID    uint `gorm:"uniqueIndex:distinct_likecommnet"`
+	CommentID uint `gorm:"uniqueIndex:distinct_likecomment"`
+
+	User    *User    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Comment *Comment `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Collect struct {

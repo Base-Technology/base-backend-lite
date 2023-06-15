@@ -11,26 +11,26 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
-func LikePostHandle(c *gin.Context) {
-	hd := &LikePostHandler{}
+func LikeCommentHandle(c *gin.Context) {
+	hd := &LikeCommentHandler{}
 	handler.Handle(c, hd)
 }
 
-type LikePostHandler struct {
-	Req  LikePostRequest
-	Resp LikePostResponse
+type LikeCommentHandler struct {
+	Req  LikeCommentRequest
+	Resp LikeCommentResponse
 }
 
-type LikePostRequest struct {
-	PostID uint `json:"post_id" binding:"required"`
-	User   *database.User
+type LikeCommentRequest struct {
+	CommentID uint `json:"comment_id" binding:"required"`
+	User      *database.User
 }
 
-type LikePostResponse struct {
+type LikeCommentResponse struct {
 	common.BaseResponse
 }
 
-func (h *LikePostHandler) BindReq(c *gin.Context) error {
+func (h *LikeCommentHandler) BindReq(c *gin.Context) error {
 	if err := c.ShouldBindBodyWith(&h.Req, binding.JSON); err != nil {
 		msg := fmt.Sprintf("invalid request, bind error: %v", err)
 		seelog.Error(msg)
@@ -40,30 +40,30 @@ func (h *LikePostHandler) BindReq(c *gin.Context) error {
 	return nil
 }
 
-func (h *LikePostHandler) AfterBindReq() error {
+func (h *LikeCommentHandler) AfterBindReq() error {
 	return nil
 }
 
-func (h *LikePostHandler) GetResponse() interface{} {
+func (h *LikeCommentHandler) GetResponse() interface{} {
 	return h.Resp
 }
 
-func (h *LikePostHandler) SetError(code int, message string) {
+func (h *LikeCommentHandler) SetError(code int, message string) {
 	h.Resp.Code = code
 	h.Resp.Message = message
 }
 
-func (h *LikePostHandler) SetUser(user *database.User) {
+func (h *LikeCommentHandler) SetUser(user *database.User) {
 	h.Req.User = user
 }
 
-func (h *LikePostHandler) NeedVerifyToken() bool {
+func (h *LikeCommentHandler) NeedVerifyToken() bool {
 	return true
 }
 
-func (h *LikePostHandler) Process() {
-	like := &database.Like{UserID: h.Req.User.ID, PostID: h.Req.PostID}
-	if err := database.GetInstance().Create(like).Error; err != nil {
+func (h *LikeCommentHandler) Process() {
+	likecomment := &database.Likecomment{UserID: h.Req.User.ID, CommentID: h.Req.CommentID}
+	if err := database.GetInstance().Create(likecomment).Error; err != nil {
 		msg := fmt.Sprintf("insert to database error, %v", err)
 		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)

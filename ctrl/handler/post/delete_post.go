@@ -64,6 +64,7 @@ func (h *DeletePostHandler) NeedVerifyToken() bool {
 func (h *DeletePostHandler) Process() {
 	if err := database.GetInstance().Where("id = ?", h.Req.PostID).Where("creator_id = ?", h.Req.User.ID).Unscoped().Delete(&database.Post{}).Error; err != nil {
 		msg := fmt.Sprintf("delete post error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}

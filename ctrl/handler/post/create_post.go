@@ -74,6 +74,7 @@ func (h *CreatePostHandler) Process() {
 		} else {
 			if err := tx.Commit().Error; err != nil {
 				msg := fmt.Sprintf("tx commit error, %v", err)
+				seelog.Errorf(msg)
 				h.SetError(common.ErrorInner, msg)
 				return
 			}
@@ -92,6 +93,7 @@ func (h *CreatePostHandler) Process() {
 	}
 	if err := tx.Select("id", fields).Create(&post).Error; err != nil {
 		msg := fmt.Sprintf("insert to database error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
@@ -101,6 +103,7 @@ func (h *CreatePostHandler) Process() {
 			Source: image,
 		}).Error; err != nil {
 			msg := fmt.Sprintf("insert to database error, %v", err)
+			seelog.Errorf(msg)
 			h.SetError(common.ErrorInner, msg)
 			return
 		}

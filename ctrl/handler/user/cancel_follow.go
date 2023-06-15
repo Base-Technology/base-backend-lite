@@ -64,6 +64,7 @@ func (h *CancelFollowHandler) NeedVerifyToken() bool {
 func (h *CancelFollowHandler) Process() {
 	if err := database.GetInstance().Where("user_id = ?", h.Req.User.ID).Where("following_id = ?", h.Req.UserID).Unscoped().Delete(&database.Follow{}).Error; err != nil {
 		msg := fmt.Sprintf("delete follow relation error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}

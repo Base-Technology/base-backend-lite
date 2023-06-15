@@ -64,6 +64,7 @@ func (h *UnlikePostHandler) NeedVerifyToken() bool {
 func (h *UnlikePostHandler) Process() {
 	if err := database.GetInstance().Where("post_id = ?", h.Req.PostID).Where("user_id = ?", h.Req.User.ID).Unscoped().Delete(&database.Like{}).Error; err != nil {
 		msg := fmt.Sprintf("unlike post error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
