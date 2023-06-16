@@ -4,20 +4,24 @@ server:
   token_secret: base-backend-lite
 
 database:
-  ip: xxx.xxx.xxx.xxx
-  port: 8000
-  username: root
-  password: xxxxxx
+  ip: localhost
+  port: 3306
+  username: base
+  password: 123456
 
 validate_code:
-  server: https://xxx
-  appkey: xxxxxx
-  appsecret: xxxxxx
-  appcode: xxx
+  server: https://www.sw0610.com:9443/sms/batch/v1
+  appkey: 9Hi5i6
+  appsecret: PFYkTl
+  appcode: 1000
+
+imtp:
+  app_server: http://119.45.212.83:8001
+  api_server: http://119.45.212.83:10002
+  admin_private_key: e2fd8e011a0e84a9a2e31d10b96f4a222b8711f138777ccc89bf5f801df4e2f5
 
 logger:
   level: debug
 
 chatgpt_porxy:
-  ip: 147.182.251.92
-  port: 5000
+  url: https://proxy.base.tech/proxy/openai

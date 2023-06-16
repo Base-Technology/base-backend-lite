@@ -92,11 +92,7 @@ func (h *ChatGPTHandler) Process() {
 		FirstOrCreate(limit)
 
 	// reset limit if last reset time is more than 24 hours
-	if time.Since(limit.LastResetTime).Hours() > 24 {
-		limit.DailyLeftCallCount = limit.MaxDailyCallCount
-		limit.DailyLeftTokenCount = limit.MaxDailyTokenCount
-		limit.LastResetTime = time.Now()
-	}
+	resetBalance(limit)
 
 	// fill in limit first, if there is error, this will be the response
 	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
@@ -113,9 +109,8 @@ func (h *ChatGPTHandler) Process() {
 		return
 	}
 
-	url := fmt.Sprintf("http://%s:%d/proxy/openai?prompt=%s",
-		conf.Conf.ChatGPTProxyConf.IP,
-		conf.Conf.ChatGPTProxyConf.Port,
+	url := fmt.Sprintf("%s?prompt=%s",
+		conf.Conf.ChatGPTProxyConf.Url,
 		url.QueryEscape(h.Req.Prompt))
 	//fmt.Println(url)
 	resp, err := http.Get(url)
@@ -139,10 +134,39 @@ func (h *ChatGPTHandler) Process() {
 		h.SetError(common.ErrorInner, "unmarshal response body error")
 		return
 	}
-
-	updateBalance(limit, &proxy_resp.Data)
 	//fmt.Println(proxy_resp.Data)
 	h.Resp.Response = proxy_resp.Data
+
+	limit = &database.ChatGPTLimit{}
+	tx := database.GetInstance().Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+		if err := tx.Commit().Error; err != nil {
+			msg := fmt.Sprintf("ChatGPT: UserId=%v commit error [%v]", h.Req.User.ID, err)
+			seelog.Errorf(msg)
+			h.SetError(common.ErrorInner, msg)
+			tx.Rollback()
+		}
+	}()
+	if err := tx.Where(database.ChatGPTLimit{UserID: h.Req.User.ID}).First(limit).Error; err != nil {
+		msg := fmt.Sprintf("ChatGPT: UserId=%v not found [%v]", h.Req.User.ID, err)
+		seelog.Errorf(msg)
+		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
+		return
+	}
+	resetBalance(limit)
+	updateBalance(limit, &proxy_resp.Data)
+	if err := tx.Save(limit).Error; err != nil {
+		msg := fmt.Sprintf("ChatGPT: error when saving limit [%v]", err)
+		seelog.Errorf(msg)
+		h.SetError(common.ErrorInner, msg)
+		tx.Rollback()
+		return
+	}
+
 	// fill in the updated limit
 	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
 		DailyLeftCallCount:  limit.DailyLeftCallCount,
@@ -151,6 +175,4 @@ func (h *ChatGPTHandler) Process() {
 		MaxDailyCallCount:   limit.MaxDailyCallCount,
 		MaxDailyTokenCount:  limit.MaxDailyTokenCount,
 	}
-
-	database.GetInstance().Save(limit)
 }
