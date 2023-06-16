@@ -7,6 +7,7 @@ type Config struct {
 	DBConf           DBConfig           `mapstructure:"database"`
 	LoggerConf       LoggerConfig       `mapstructure:"logger"`
 	ChatGPTProxyConf ChatGPTProxyConfig `mapstructure:"chatgpt_porxy"`
+	ValidateCodeConf ValidateCodeConfig `mapstructure:"validate_code"`
 }
 
 type ServerConfig struct {
@@ -20,6 +21,13 @@ type DBConfig struct {
 	Port     int    `mapstructure:"port"`
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
+}
+
+type ValidateCodeConfig struct {
+	Server    string `mapstructure:"server"`
+	AppKey    string `mapstructure:"appkey"`
+	AppSecret string `mapstructure:"appsecret"`
+	AppCode   string `mapstructure:"appcode"`
 }
 
 type LoggerConfig struct {

@@ -9,6 +9,12 @@ database:
   username: root
   password: xxxxxx
 
+validate_code:
+  server: https://xxx
+  appkey: xxxxxx
+  appsecret: xxxxxx
+  appcode: xxx
+
 logger:
   level: debug
 

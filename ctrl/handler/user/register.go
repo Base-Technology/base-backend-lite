@@ -25,11 +25,13 @@ type RegisterHandler struct {
 }
 
 type RegisterRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Phone    string `json:"phone" binding:"required"`
-	Area     string `json:"area" binding:"required"`
-	School   string `json:"school" binding:"required"`
+	Username     string `json:"username" binding:"required"`
+	Password     string `json:"password" binding:"required"`
+	Phone        string `json:"phone" binding:"required"`
+	Area         string `json:"area" binding:"required"`
+	School       string `json:"school" binding:"required"`
+	ValidateCode string `json:"validate_code" binding:"required"`
+	Avatar       string `json:"avatar"`
 }
 
 type RegisterResponse struct {
@@ -67,6 +69,14 @@ func (h *RegisterHandler) NeedVerifyToken() bool {
 }
 
 func (h *RegisterHandler) Process() {
+	// check the validate code
+	code, ok := validateCodes.Get(h.Req.Phone)
+	if !ok || code != h.Req.ValidateCode {
+		msg := fmt.Sprintf("validate code invalid")
+		h.SetError(common.ErrorInvalidParams, msg)
+		return
+	}
+	validateCodes.Delete(h.Req.Phone)
 	// hash the password
 	hp, err := bcrypt.GenerateFromPassword([]byte(h.Req.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -89,6 +99,7 @@ func (h *RegisterHandler) Process() {
 		Area:       h.Req.Area,
 		School:     h.Req.School,
 		PrivateKey: hexutil.Encode(crypto.FromECDSA(k)),
+		Avatar:     h.Req.Avatar,
 	}
 	if err := database.GetInstance().Create(user).Error; err != nil {
 		msg := fmt.Sprintf("insert into database error, %v", err)
