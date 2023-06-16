@@ -42,6 +42,12 @@ func initPostInterfaces() {
 
 func initGroupInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group/user", Method: "GET", Handler: group.GetGroupUserHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group", Method: "POST", Handler: group.CreateGroupHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group", Method: "GET", Handler: group.GetGroupInfoHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group/member", Method: "GET", Handler: group.GetGroupMemberHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group/member/quit", Method: "DELETE", Handler: group.MemberQuitHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group/member", Method: "POST", Handler: group.AddMemberHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/group/member", Method: "DELETE", Handler: group.RemoveMemberHandle})
 }
 
 func initFriendInterfaces() {
