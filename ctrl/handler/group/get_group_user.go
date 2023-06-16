@@ -30,12 +30,9 @@ type GetGroupUserResponse struct {
 }
 
 type UserDeatail struct {
-	ID           uint   `json:"id"`
-	Name         string `json:"username"`
-	Area         string `json:"area"`
-	School       string `json:"school"`
-	Introduction string `json:"introduction"`
-	Avatar       string `json:"avatar"`
+	ID     uint   `json:"id"`
+	Name   string `json:"username"`
+	Avatar string `json:"avatar"`
 }
 
 func (h *GetGroupUserHandler) BindReq(c *gin.Context) error {
@@ -75,12 +72,9 @@ func (h *GetGroupUserHandler) Process() {
 	h.Resp.Users = []*UserDeatail{}
 	for _, user := range users {
 		h.Resp.Users = append(h.Resp.Users, &UserDeatail{
-			ID:           user.ID,
-			Name:         user.Name,
-			Area:         user.Area,
-			School:       user.School,
-			Introduction: user.Introduction,
-			Avatar:       user.Avatar,
+			ID:     user.ID,
+			Name:   user.Name,
+			Avatar: user.Avatar,
 		})
 	}
 }

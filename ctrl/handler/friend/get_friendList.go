@@ -21,13 +21,17 @@ type GetFriendListHandler struct {
 }
 
 type GetFriendListRequest struct {
-	User       *database.User
-	FriendList []*database.User
+	User *database.User
 }
 
 type GetFriendListResponse struct {
 	common.BaseResponse
-	FriendList []*database.User `json:"data"`
+	FriendList []*UserDeatail `json:"data"`
+}
+type UserDeatail struct {
+	ID     uint   `json:"id"`
+	Name   string `json:"username"`
+	Avatar string `json:"avatar"`
 }
 
 func (h *GetFriendListHandler) BindReq(c *gin.Context) error {
@@ -65,5 +69,11 @@ func (h *GetFriendListHandler) Process() {
 		return
 	}
 
-	h.Resp.FriendList = user.Friends
+	for _, u := range user.Friends {
+		h.Resp.FriendList = append(h.Resp.FriendList, &UserDeatail{
+			ID:     u.ID,
+			Name:   u.Name,
+			Avatar: u.Avatar,
+		})
+	}
 }

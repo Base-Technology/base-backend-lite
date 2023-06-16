@@ -28,7 +28,12 @@ type GetGroupMemberRequest struct {
 
 type GetGroupMemberResponse struct {
 	common.BaseResponse
-	GroupMembers []*database.User `json:"data"`
+	GroupMembers []*MemberDetail `json:"data"`
+}
+type MemberDetail struct {
+	ID     uint   `json:"id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
 }
 
 func (h *GetGroupMemberHandler) BindReq(c *gin.Context) error {
@@ -72,5 +77,11 @@ func (h *GetGroupMemberHandler) Process() {
 		return
 	}
 
-	h.Resp.GroupMembers = group.Members
+	for _, member := range group.Members {
+		h.Resp.GroupMembers = append(h.Resp.GroupMembers, &MemberDetail{
+			ID:     member.ID,
+			Name:   member.Name,
+			Avatar: member.Avatar,
+		})
+	}
 }

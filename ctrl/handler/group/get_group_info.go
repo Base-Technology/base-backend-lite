@@ -28,7 +28,15 @@ type GetGroupInfoRequest struct {
 
 type GetGroupInfoResponse struct {
 	common.BaseResponse
-	GroupInfo *database.Group `json:"data"`
+	GroupInfo *GroupDetail `json:"data"`
+}
+type GroupDetail struct {
+	ID          uint   `json:"group_id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	CreatorID   uint   `json:"creator_id"`
+	MembersNum  int    `json:"member_num"`
+	Avatar      string `json:"avatar"`
 }
 
 func (h *GetGroupInfoHandler) BindReq(c *gin.Context) error {
@@ -66,11 +74,18 @@ func (h *GetGroupInfoHandler) Process() {
 	var err error
 	var group *database.Group
 	if err = database.GetInstance().Model(&database.Group{}).Preload("Members").Where("id = ?", h.Req.GroupID).Find(&group).Error; err != nil {
-		msg := fmt.Sprintf("get friend list error, %v", err)
+		msg := fmt.Sprintf("get group error, %v", err)
 		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
 
-	h.Resp.GroupInfo = group
+	h.Resp.GroupInfo = &GroupDetail{
+		ID:          group.ID,
+		Name:        group.Name,
+		Description: group.Description,
+		CreatorID:   group.CreatorID,
+		MembersNum:  len(group.Members),
+		Avatar:      group.Avatar,
+	}
 }

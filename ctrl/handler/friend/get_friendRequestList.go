@@ -2,6 +2,7 @@ package friend
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
@@ -26,7 +27,16 @@ type GetFriendRequestListRequest struct {
 
 type GetFriendRequestListResponse struct {
 	common.BaseResponse
-	FriendRequestList []*database.FriendRequest `json:"data"`
+	FriendRequestList []*RequestDetail `json:"data"`
+}
+
+type RequestDetail struct {
+	ID       uint      `json:"id"`
+	Name     string    `json:"username"`
+	Avatar   string    `json:"avatar"`
+	Message  string    `json:"message"`
+	Status   string    `json:"status"`
+	CreateAt time.Time `json:"create_at"`
 }
 
 func (h *GetFriendRequestListHandler) BindReq(c *gin.Context) error {
@@ -65,5 +75,14 @@ func (h *GetFriendRequestListHandler) Process() {
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
-	h.Resp.FriendRequestList = friendRequestList
+	for _, friendRequest := range friendRequestList {
+		h.Resp.FriendRequestList = append(h.Resp.FriendRequestList, &RequestDetail{
+			ID:       friendRequest.SenderID,
+			Name:     friendRequest.Name,
+			Avatar:   friendRequest.Avatar,
+			Message:  friendRequest.Message,
+			Status:   friendRequest.Status,
+			CreateAt: friendRequest.CreatedAt,
+		})
+	}
 }
