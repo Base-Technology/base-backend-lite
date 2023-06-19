@@ -2,9 +2,9 @@ package post
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/ctrl/detail"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
@@ -31,20 +31,7 @@ type GetPostRequest struct {
 
 type GetPostResponse struct {
 	common.BaseResponse
-	Posts []*PostDeatail `json:"data"`
-}
-
-type PostDeatail struct {
-	ID            uint      `json:"id"`
-	Title         string    `json:"title"`
-	Content       string    `json:"content"`
-	CreateAt      time.Time `json:"create_at"`
-	CreatorId     uint      `json:"creatorid"`
-	CreatorName   string    `json:"Creator_name"`
-	CreatorAvatar string    `json:"creator_avatar"`
-	CommentCount  int64     `json:"comment_count"`
-	LikeCount     int64     `json:"like_count"`
-	CollectCount  int64     `json:"collect_count"`
+	Posts []*detail.PostDeatail `json:"data"`
 }
 
 func (h *GetPostHandler) BindReq(c *gin.Context) error {
@@ -128,7 +115,7 @@ func (h *GetPostHandler) Process() {
 		return
 	}
 
-	h.Resp.Posts = []*PostDeatail{}
+	h.Resp.Posts = []*detail.PostDeatail{}
 	for _, post := range posts {
 		var creator *database.User
 		if err := database.GetInstance().Model(&database.User{}).Where("id = ? ", post.CreatorID).Find(&creator).Error; err != nil {
@@ -158,7 +145,7 @@ func (h *GetPostHandler) Process() {
 			h.SetError(common.ErrorInner, msg)
 			return
 		}
-		h.Resp.Posts = append(h.Resp.Posts, &PostDeatail{
+		h.Resp.Posts = append(h.Resp.Posts, &detail.PostDeatail{
 			ID:            post.ID,
 			Title:         post.Title,
 			Content:       post.Content,

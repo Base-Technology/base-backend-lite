@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/ctrl/detail"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ type GetOtherUserRequest struct {
 
 type GetOtherUserResponse struct {
 	common.BaseResponse
-	User UserDeatail `json:"user"`
+	User detail.UserDeatailMore `json:"user"`
 }
 
 func (h *GetOtherUserHandler) BindReq(c *gin.Context) error {
@@ -68,7 +69,7 @@ func (h *GetOtherUserHandler) Process() {
 		return
 	}
 	user := users[0]
-	h.Resp.User = UserDeatail{
+	h.Resp.User = detail.UserDeatailMore{
 		ID:           user.ID,
 		Name:         user.Name,
 		Area:         user.Area,
@@ -76,5 +77,6 @@ func (h *GetOtherUserHandler) Process() {
 		Introduction: user.Introduction,
 		Avatar:       user.Avatar,
 		IMTPUserID:   user.IMTPUserID,
+		Sex:          user.Sex,
 	}
 }

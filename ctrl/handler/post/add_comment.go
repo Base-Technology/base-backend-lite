@@ -96,13 +96,7 @@ func (h *AddCommentHandler) Process() {
 			Level:            commentpointed.Level + 1,
 		}
 	}
-	var post *database.Post
-	if err := database.GetInstance().Model(&database.Post{}).Where("id = ?", h.Req.PostId).Find(&post).Error; err != nil {
-		msg := fmt.Sprintf("get post error, %v", err)
-		seelog.Errorf(msg)
-		h.SetError(common.ErrorInner, msg)
-		return
-	}
+
 	if err := database.GetInstance().Create(comment).Error; err != nil {
 		msg := fmt.Sprintf("insert comment error, %v", err)
 		seelog.Errorf(msg)

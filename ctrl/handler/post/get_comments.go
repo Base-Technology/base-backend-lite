@@ -2,9 +2,9 @@ package post
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/ctrl/detail"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
@@ -31,17 +31,7 @@ type GetCommentRequest struct {
 
 type GetCommentResponse struct {
 	common.BaseResponse
-	Comment []*CommentDeatail `json:"data"`
-}
-type CommentDeatail struct {
-	CommentID        uint      `json:"comment_id"`
-	CreatorID        uint      `json:"creator_id"`
-	CreatorName      string    `json:"creator_name"`
-	CreatorAvatar    string    `json:"creator_avatar"`
-	CreateAt         time.Time `json:"create_at"`
-	Content          string    `json:"content"`
-	Level            uint      `json:"level"`
-	CommentPointedID uint      `json:"commentpointed_id"`
+	Comment []*detail.CommentDeatail `json:"data"`
 }
 
 func (h *GetCommentHandler) BindReq(c *gin.Context) error {
@@ -77,7 +67,7 @@ func (h *GetCommentHandler) NeedVerifyToken() bool {
 
 func (h *GetCommentHandler) Process() {
 	var comments []*database.Comment
-	if err := database.GetInstance().Model(&database.Comment{}).Where("post_id = ?", h.Req.PostId).Offset((h.Req.Page - 1) * h.Req.Limit).Limit(h.Req.Limit).Find(&comments).Error; err != nil {
+	if err := database.GetInstance().Model(&database.Comment{}).Where("post_id = ?", h.Req.PostId).Order("created_at desc").Offset((h.Req.Page - 1) * h.Req.Limit).Limit(h.Req.Limit).Find(&comments).Error; err != nil {
 		msg := fmt.Sprintf("get comments error, %v", err)
 		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
@@ -97,7 +87,7 @@ func (h *GetCommentHandler) Process() {
 		} else {
 			pointed = *c.CommentPointedID
 		}
-		h.Resp.Comment = append(h.Resp.Comment, &CommentDeatail{
+		h.Resp.Comment = append(h.Resp.Comment, &detail.CommentDeatail{
 			CommentID:        c.ID,
 			CreatorID:        c.CreatorID,
 			CreatorName:      creator.Name,

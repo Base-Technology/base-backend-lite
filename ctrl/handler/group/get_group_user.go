@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Base-Technology/base-backend-lite/common"
+	"github.com/Base-Technology/base-backend-lite/ctrl/detail"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/gin-gonic/gin"
@@ -26,13 +27,7 @@ type GetGroupUserRequest struct {
 
 type GetGroupUserResponse struct {
 	common.BaseResponse
-	Users []*UserDeatail `json:"data"`
-}
-
-type UserDeatail struct {
-	ID     uint   `json:"id"`
-	Name   string `json:"username"`
-	Avatar string `json:"avatar"`
+	Users []*detail.UserDetail `json:"data"`
 }
 
 func (h *GetGroupUserHandler) BindReq(c *gin.Context) error {
@@ -69,9 +64,9 @@ func (h *GetGroupUserHandler) Process() {
 		return
 	}
 
-	h.Resp.Users = []*UserDeatail{}
+	h.Resp.Users = []*detail.UserDetail{}
 	for _, user := range users {
-		h.Resp.Users = append(h.Resp.Users, &UserDeatail{
+		h.Resp.Users = append(h.Resp.Users, &detail.UserDetail{
 			ID:     user.ID,
 			Name:   user.Name,
 			Avatar: user.Avatar,
