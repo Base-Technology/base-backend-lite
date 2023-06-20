@@ -24,13 +24,11 @@ func resetBalance(limit *database.ChatGPTLimit) {
 	}
 }
 
-func updateBalance(limit *database.ChatGPTLimit, response *string) {
-	// TODO: use tokenizer from openai to count token
-	tokenCount := len(*response)
-	seelog.Infof("tokenCount: %d", tokenCount)
+func updateBalance(limit *database.ChatGPTLimit, usage *ChatGPTProxyUsage) {
+	seelog.Infof("tokenUsage: %v", usage)
 	limit.DailyLeftCallCount = max(0, limit.DailyLeftCallCount-1)
-	limit.DailyLeftTokenCount = max(0, limit.DailyLeftTokenCount-tokenCount)
-	limit.TotalTokenLeftCount = max(0, limit.TotalTokenLeftCount-tokenCount)
+	limit.DailyLeftTokenCount = max(0, limit.DailyLeftTokenCount-usage.TotalTokens)
+	limit.TotalTokenLeftCount = max(0, limit.TotalTokenLeftCount-usage.TotalTokens)
 }
 
 // verify if there is enough token to use
