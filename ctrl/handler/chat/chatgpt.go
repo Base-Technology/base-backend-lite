@@ -40,9 +40,20 @@ type ChatGPTResponse struct {
 }
 
 type ChatGPTProxyResponse struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
-	Data string `json:"data"`
+	Code int              `json:"code"`
+	Msg  string           `json:"msg"`
+	Data ChatGPTProxyData `json:"data"`
+}
+
+type ChatGPTProxyData struct {
+	Text  string            `json:"text"`
+	Usage ChatGPTProxyUsage `json:"usage"`
+}
+
+type ChatGPTProxyUsage struct {
+	CompletionTokens int `json:"completion_tokens"`
+	PromptTokens     int `json:"prompt_tokens"`
+	TotalTokens      int `json:"total_tokens"`
 }
 
 func (h *ChatGPTHandler) BindReq(c *gin.Context) error {
@@ -127,7 +138,7 @@ func (h *ChatGPTHandler) Process() {
 		return
 	}
 	//fmt.Println(proxy_resp.Data)
-	h.Resp.Response = proxy_resp.Data
+	h.Resp.Response = proxy_resp.Data.Text
 
 	limit = &database.ChatGPTLimit{}
 	tx := database.GetInstance().Begin()
@@ -150,7 +161,7 @@ func (h *ChatGPTHandler) Process() {
 		return
 	}
 	resetBalance(limit)
-	updateBalance(limit, &proxy_resp.Data)
+	updateBalance(limit, &proxy_resp.Data.Usage)
 	if err := tx.Save(limit).Error; err != nil {
 		msg := fmt.Sprintf("ChatGPT: error when saving limit [%v]", err)
 		seelog.Errorf(msg)
