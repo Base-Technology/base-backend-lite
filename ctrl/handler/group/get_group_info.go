@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/Base-Technology/base-backend-lite/common"
-	"github.com/Base-Technology/base-backend-lite/ctrl/detail"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
@@ -29,7 +29,7 @@ type GetGroupInfoRequest struct {
 
 type GetGroupInfoResponse struct {
 	common.BaseResponse
-	GroupInfo *detail.GroupDetail `json:"data"`
+	GroupInfo *types.GroupDetail `json:"data"`
 }
 
 func (h *GetGroupInfoHandler) BindReq(c *gin.Context) error {
@@ -73,7 +73,7 @@ func (h *GetGroupInfoHandler) Process() {
 		return
 	}
 
-	h.Resp.GroupInfo = &detail.GroupDetail{
+	h.Resp.GroupInfo = &types.GroupDetail{
 		ID:          group.ID,
 		Name:        group.Name,
 		Description: group.Description,

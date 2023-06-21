@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/Base-Technology/base-backend-lite/common"
-	"github.com/Base-Technology/base-backend-lite/ctrl/detail"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
@@ -24,12 +24,14 @@ type GetGroupMemberHandler struct {
 
 type GetGroupMemberRequest struct {
 	GroupID uint `json:"groupid"`
+	Page    int  `json:"page"`
+	Limit   int  `json:"limit"`
 	User    *database.User
 }
 
 type GetGroupMemberResponse struct {
 	common.BaseResponse
-	GroupMembers []*detail.UserDetail `json:"data"`
+	GroupMembers []*types.UserDetail `json:"data"`
 }
 
 func (h *GetGroupMemberHandler) BindReq(c *gin.Context) error {
@@ -66,7 +68,7 @@ func (h *GetGroupMemberHandler) NeedVerifyToken() bool {
 func (h *GetGroupMemberHandler) Process() {
 	var err error
 	var group *database.Group
-	if err = database.GetInstance().Model(&database.Group{}).Preload("Members").Where("id = ?", h.Req.GroupID).Find(&group).Error; err != nil {
+	if err = database.GetInstance().Model(&database.Group{}).Preload("Members").Offset((h.Req.Page-1)*h.Req.Limit).Limit(h.Req.Limit).Where("id = ?", h.Req.GroupID).Find(&group).Error; err != nil {
 		msg := fmt.Sprintf("get friend list error, %v", err)
 		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
@@ -74,7 +76,7 @@ func (h *GetGroupMemberHandler) Process() {
 	}
 
 	for _, member := range group.Members {
-		h.Resp.GroupMembers = append(h.Resp.GroupMembers, &detail.UserDetail{
+		h.Resp.GroupMembers = append(h.Resp.GroupMembers, &types.UserDetail{
 			ID:     member.ID,
 			Name:   member.Name,
 			Avatar: member.Avatar,

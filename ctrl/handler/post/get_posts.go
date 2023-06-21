@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/Base-Technology/base-backend-lite/common"
-	"github.com/Base-Technology/base-backend-lite/ctrl/detail"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
@@ -31,7 +31,7 @@ type GetPostRequest struct {
 
 type GetPostResponse struct {
 	common.BaseResponse
-	Posts []*detail.PostDeatail `json:"data"`
+	Posts []*types.PostDeatail `json:"data"`
 }
 
 func (h *GetPostHandler) BindReq(c *gin.Context) error {
@@ -71,21 +71,57 @@ func (h *GetPostHandler) Process() {
 	posts := []*database.Post{}
 	switch h.Req.Type {
 	case "me":
-		err = database.GetInstance().Model(&database.Post{}).Where("creator_id = ?", h.Req.User.ID).Order("created_at desc").Offset((h.Req.Page - 1) * h.Req.Limit).Limit(h.Req.Limit).Find(&posts).Error
+		err = database.GetInstance().Model(&database.Post{}).Preload("Creator").Where("creator_id = ?", h.Req.User.ID).Order("created_at desc").Offset((h.Req.Page - 1) * h.Req.Limit).Limit(h.Req.Limit).Find(&posts).Error
 	case "like":
+		var post_id []uint
 		likes := []*database.Like{}
-		err = database.GetInstance().Preload("Post").Where("user_id = ?", h.Req.User.ID).Order("created_at desc").Offset((h.Req.Page - 1) * h.Req.Limit).Limit(h.Req.Limit).Find(&likes).Error
+		err := database.GetInstance().Model(&database.Like{}).Select("post_id").Where("user_id = ?", h.Req.User.ID).Find(&post_id).Error
+		if err != nil {
+			msg := fmt.Sprintf("get post id error, %v", err)
+			seelog.Errorf(msg)
+			h.SetError(common.ErrorInner, msg)
+			return
+		}
+		err = database.GetInstance().Model(&database.Post{}).Preload("Creator").Where("id IN (?)", post_id).
+			Order("created_at desc").
+			Offset((h.Req.Page - 1) * h.Req.Limit).
+			Limit(h.Req.Limit).
+			Find(&posts).Error
+		if err != nil {
+			msg := fmt.Sprintf("get post error, %v", err)
+			seelog.Errorf(msg)
+			h.SetError(common.ErrorInner, msg)
+			return
+		}
 		for _, like := range likes {
 			posts = append(posts, like.Post)
 		}
 	case "collect":
+		var post_id []uint
 		collects := []*database.Collect{}
-		err = database.GetInstance().Preload("Post").Where("user_id = ?", h.Req.User.ID).Order("created_at desc").Offset((h.Req.Page - 1) * h.Req.Limit).Limit(h.Req.Limit).Find(&collects).Error
+		err := database.GetInstance().Model(&database.Collect{}).Select("post_id").Where("user_id = ?", h.Req.User.ID).Find(&post_id).Error
+		if err != nil {
+			msg := fmt.Sprintf("get post id error, %v", err)
+			seelog.Errorf(msg)
+			h.SetError(common.ErrorInner, msg)
+			return
+		}
+		err = database.GetInstance().Model(&database.Post{}).Preload("Creator").Where("id IN (?)", post_id).
+			Order("created_at desc").
+			Offset((h.Req.Page - 1) * h.Req.Limit).
+			Limit(h.Req.Limit).
+			Find(&posts).Error
+		if err != nil {
+			msg := fmt.Sprintf("get post error, %v", err)
+			seelog.Errorf(msg)
+			h.SetError(common.ErrorInner, msg)
+			return
+		}
 		for _, collect := range collects {
 			posts = append(posts, collect.Post)
 		}
 	case "all":
-		err = database.GetInstance().Model(&database.Post{}).Order("created_at desc").Offset((h.Req.Page - 1) * h.Req.Limit).Limit(h.Req.Limit).Find(&posts).Error
+		err = database.GetInstance().Model(&database.Post{}).Preload("Creator").Order("created_at desc").Offset((h.Req.Page - 1) * h.Req.Limit).Limit(h.Req.Limit).Find(&posts).Error
 	case "following":
 		var followings []uint
 		if err := database.GetInstance().Model(&database.Follow{}).Select("following_id").Where("user_id = ?", h.Req.User.ID).Find(&followings).Error; err != nil {
@@ -94,12 +130,11 @@ func (h *GetPostHandler) Process() {
 			h.SetError(common.ErrorInner, msg)
 			return
 		}
-		err = database.GetInstance().Model(&database.Post{}).Where("creator_id IN (?)", followings).
+		err = database.GetInstance().Model(&database.Post{}).Preload("Creator").Where("creator_id IN (?)", followings).
 			Order("created_at desc").
 			Offset((h.Req.Page - 1) * h.Req.Limit).
 			Limit(h.Req.Limit).
 			Preload("Creator").
-			Preload("PostPointed").
 			Find(&posts).Error
 	default:
 		msg := fmt.Sprintf("invalid type: [%v]", h.Req.Type)
@@ -115,15 +150,8 @@ func (h *GetPostHandler) Process() {
 		return
 	}
 
-	h.Resp.Posts = []*detail.PostDeatail{}
+	h.Resp.Posts = []*types.PostDeatail{}
 	for _, post := range posts {
-		var creator *database.User
-		if err := database.GetInstance().Model(&database.User{}).Where("id = ? ", post.CreatorID).Find(&creator).Error; err != nil {
-			msg := fmt.Sprintf("get post creator error, %v", err)
-			seelog.Errorf(msg)
-			h.SetError(common.ErrorInner, msg)
-			return
-		}
 		var comment_count int64
 		var like_count int64
 		var collect_count int64
@@ -145,14 +173,14 @@ func (h *GetPostHandler) Process() {
 			h.SetError(common.ErrorInner, msg)
 			return
 		}
-		h.Resp.Posts = append(h.Resp.Posts, &detail.PostDeatail{
+		h.Resp.Posts = append(h.Resp.Posts, &types.PostDeatail{
 			ID:            post.ID,
 			Title:         post.Title,
 			Content:       post.Content,
 			CreateAt:      post.CreatedAt,
 			CreatorId:     post.CreatorID,
-			CreatorName:   creator.Name,
-			CreatorAvatar: creator.Avatar,
+			CreatorName:   post.Creator.Name,
+			CreatorAvatar: post.Creator.Avatar,
 			CommentCount:  comment_count,
 			LikeCount:     like_count,
 			CollectCount:  collect_count,

@@ -10,8 +10,8 @@ import (
 
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/conf"
-	"github.com/Base-Technology/base-backend-lite/ctrl/detail"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
@@ -36,7 +36,7 @@ type ChatGPTRequest struct {
 type ChatGPTResponse struct {
 	common.BaseResponse
 	Response string `json:"response"`
-	detail.ChatGPTLimitDetail
+	types.ChatGPTLimitDetail
 }
 
 type ChatGPTProxyResponse struct {
@@ -87,7 +87,7 @@ func (h *ChatGPTHandler) Process() {
 	resetBalance(limit)
 
 	// fill in limit first, if there is error, this will be the response
-	h.Resp.ChatGPTLimitDetail = detail.ChatGPTLimitDetail{
+	h.Resp.ChatGPTLimitDetail = types.ChatGPTLimitDetail{
 		DailyLeftCallCount:  limit.DailyLeftCallCount,
 		DailyLeftTokenCount: limit.DailyLeftTokenCount,
 		TotalTokenLeftCount: limit.TotalTokenLeftCount,
@@ -160,7 +160,7 @@ func (h *ChatGPTHandler) Process() {
 	}
 
 	// fill in the updated limit
-	h.Resp.ChatGPTLimitDetail = detail.ChatGPTLimitDetail{
+	h.Resp.ChatGPTLimitDetail = types.ChatGPTLimitDetail{
 		DailyLeftCallCount:  limit.DailyLeftCallCount,
 		DailyLeftTokenCount: limit.DailyLeftTokenCount,
 		TotalTokenLeftCount: limit.TotalTokenLeftCount,

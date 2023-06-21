@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/Base-Technology/base-backend-lite/common"
-	"github.com/Base-Technology/base-backend-lite/ctrl/detail"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
@@ -27,7 +27,7 @@ type GetFriendListRequest struct {
 
 type GetFriendListResponse struct {
 	common.BaseResponse
-	FriendList []*detail.UserDetail `json:"data"`
+	FriendList []*types.UserDetail `json:"data"`
 }
 
 func (h *GetFriendListHandler) BindReq(c *gin.Context) error {
@@ -66,7 +66,7 @@ func (h *GetFriendListHandler) Process() {
 	}
 
 	for _, u := range user.Friends {
-		h.Resp.FriendList = append(h.Resp.FriendList, &detail.UserDetail{
+		h.Resp.FriendList = append(h.Resp.FriendList, &types.UserDetail{
 			ID:     u.ID,
 			Name:   u.Name,
 			Avatar: u.Avatar,
