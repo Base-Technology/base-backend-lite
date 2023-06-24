@@ -27,7 +27,7 @@ type GetOtherUserRequest struct {
 
 type GetOtherUserResponse struct {
 	common.BaseResponse
-	User types.UserDeatailMore `json:"user"`
+	User types.UserDetailMore `json:"user"`
 }
 
 func (h *GetOtherUserHandler) BindReq(c *gin.Context) error {
@@ -69,7 +69,7 @@ func (h *GetOtherUserHandler) Process() {
 		return
 	}
 	user := users[0]
-	h.Resp.User = types.UserDeatailMore{
+	h.Resp.User = types.UserDetailMore{
 		ID:           user.ID,
 		Name:         user.Name,
 		Area:         user.Area,

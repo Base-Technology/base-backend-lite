@@ -31,7 +31,7 @@ type GetCommentRequest struct {
 
 type GetCommentResponse struct {
 	common.BaseResponse
-	Comment []*types.CommentDeatail `json:"data"`
+	Comment []*types.CommentDetail `json:"data"`
 }
 
 func (h *GetCommentHandler) BindReq(c *gin.Context) error {
@@ -80,7 +80,7 @@ func (h *GetCommentHandler) Process() {
 		} else {
 			pointed = *c.CommentPointedID
 		}
-		h.Resp.Comment = append(h.Resp.Comment, &types.CommentDeatail{
+		h.Resp.Comment = append(h.Resp.Comment, &types.CommentDetail{
 			CommentID:        c.ID,
 			CreatorID:        c.CreatorID,
 			CreatorName:      c.Creator.Name,

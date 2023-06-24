@@ -31,7 +31,7 @@ type GetPostRequest struct {
 
 type GetPostResponse struct {
 	common.BaseResponse
-	Posts []*types.PostDeatail `json:"data"`
+	Posts []*types.PostDetail `json:"data"`
 }
 
 func (h *GetPostHandler) BindReq(c *gin.Context) error {
@@ -134,7 +134,6 @@ func (h *GetPostHandler) Process() {
 			Order("created_at desc").
 			Offset((h.Req.Page - 1) * h.Req.Limit).
 			Limit(h.Req.Limit).
-			Preload("Creator").
 			Find(&posts).Error
 	default:
 		msg := fmt.Sprintf("invalid type: [%v]", h.Req.Type)
@@ -150,7 +149,7 @@ func (h *GetPostHandler) Process() {
 		return
 	}
 
-	h.Resp.Posts = []*types.PostDeatail{}
+	h.Resp.Posts = []*types.PostDetail{}
 	for _, post := range posts {
 		var comment_count int64
 		var like_count int64
@@ -173,7 +172,7 @@ func (h *GetPostHandler) Process() {
 			h.SetError(common.ErrorInner, msg)
 			return
 		}
-		h.Resp.Posts = append(h.Resp.Posts, &types.PostDeatail{
+		h.Resp.Posts = append(h.Resp.Posts, &types.PostDetail{
 			ID:            post.ID,
 			Title:         post.Title,
 			Content:       post.Content,

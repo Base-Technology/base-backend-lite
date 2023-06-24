@@ -8,7 +8,7 @@ type UserDetail struct {
 	Avatar string `json:"avatar"`
 	Sex    string `json:"sex"`
 }
-type UserDeatailMore struct {
+type UserDetailMore struct {
 	ID           uint   `json:"id"`
 	Name         string `json:"username"`
 	Area         string `json:"area"`
@@ -35,7 +35,7 @@ type GroupDetail struct {
 	MembersNum  int    `json:"member_num"`
 	Avatar      string `json:"avatar"`
 }
-type PostDeatail struct {
+type PostDetail struct {
 	ID            uint      `json:"id"`
 	Title         string    `json:"title"`
 	Content       string    `json:"content"`
@@ -47,7 +47,7 @@ type PostDeatail struct {
 	LikeCount     int64     `json:"like_count"`
 	CollectCount  int64     `json:"collect_count"`
 }
-type CommentDeatail struct {
+type CommentDetail struct {
 	CommentID        uint      `json:"comment_id"`
 	CreatorID        uint      `json:"creator_id"`
 	CreatorName      string    `json:"creator_name"`

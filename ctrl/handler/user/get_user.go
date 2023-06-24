@@ -27,7 +27,7 @@ type GetUserRequest struct {
 
 type GetUserResponse struct {
 	common.BaseResponse
-	Users []*types.UserDeatailMore `json:"data"`
+	Users []*types.UserDetailMore `json:"data"`
 }
 
 func (h *GetUserHandler) BindReq(c *gin.Context) error {
@@ -84,9 +84,9 @@ func (h *GetUserHandler) Process() {
 		return
 	}
 
-	h.Resp.Users = []*types.UserDeatailMore{}
+	h.Resp.Users = []*types.UserDetailMore{}
 	for _, user := range users {
-		h.Resp.Users = append(h.Resp.Users, &types.UserDeatailMore{
+		h.Resp.Users = append(h.Resp.Users, &types.UserDetailMore{
 			ID:           user.ID,
 			Name:         user.Name,
 			Area:         user.Area,
