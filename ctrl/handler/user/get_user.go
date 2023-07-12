@@ -5,6 +5,7 @@ import (
 
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/gin-gonic/gin"
 )
@@ -26,17 +27,7 @@ type GetUserRequest struct {
 
 type GetUserResponse struct {
 	common.BaseResponse
-	Users []*UserDeatail `json:"data"`
-}
-
-type UserDeatail struct {
-	ID           uint   `json:"id"`
-	Name         string `json:"username"`
-	Area         string `json:"area"`
-	School       string `json:"school"`
-	Introduction string `json:"introduction"`
-	Avatar       string `json:"avatar"`
-	IMTPUserID   string `json:"imtp_user_id"`
+	Users []*types.UserDetailMore `json:"data"`
 }
 
 func (h *GetUserHandler) BindReq(c *gin.Context) error {
@@ -93,15 +84,16 @@ func (h *GetUserHandler) Process() {
 		return
 	}
 
-	h.Resp.Users = []*UserDeatail{}
+	h.Resp.Users = []*types.UserDetailMore{}
 	for _, user := range users {
-		h.Resp.Users = append(h.Resp.Users, &UserDeatail{
+		h.Resp.Users = append(h.Resp.Users, &types.UserDetailMore{
 			ID:           user.ID,
 			Name:         user.Name,
 			Area:         user.Area,
 			School:       user.School,
 			Introduction: user.Introduction,
 			Avatar:       user.Avatar,
+			Sex:          user.Sex,
 		})
 	}
 }

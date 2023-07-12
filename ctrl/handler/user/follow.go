@@ -65,6 +65,7 @@ func (h *FollowHandler) Process() {
 	follow := &database.Follow{UserID: h.Req.User.ID, FollowingID: h.Req.UserID}
 	if err := database.GetInstance().Create(follow).Error; err != nil {
 		msg := fmt.Sprintf("insert to database error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}

@@ -38,6 +38,9 @@ func initPostInterfaces() {
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/posts/like", Method: "DELETE", Handler: post.UnlikePostHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/posts/collect", Method: "POST", Handler: post.CollectPostHandle})
 	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/posts/collect", Method: "DELETE", Handler: post.UncollectPostHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/posts/comment", Method: "POST", Handler: post.AddCommentHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/posts/comment", Method: "GET", Handler: post.GetCommentHandle})
+	common.RouterRegister.RegisterRouterHandler(common.RouterHandler{Path: "/api/v1/posts/comment/like", Method: "POST", Handler: post.LikeCommentHandle})
 }
 
 func initGroupInterfaces() {

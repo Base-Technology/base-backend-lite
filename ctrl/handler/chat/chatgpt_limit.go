@@ -8,6 +8,7 @@ import (
 
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
 
 	//"github.com/Base-Technology/base-backend-lite/seelog"
@@ -31,7 +32,7 @@ type ChatGPTLimitRequest struct {
 
 type ChatGPTLimitResponse struct {
 	common.BaseResponse
-	ChatGPTLimitDetail
+	types.ChatGPTLimitDetail
 }
 
 func (h *ChatGPTLimitHandler) BindReq(c *gin.Context) error {
@@ -73,7 +74,7 @@ func (h *ChatGPTLimitHandler) Process() {
 		limit.LastResetTime = time.Now()
 	}
 
-	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
+	h.Resp.ChatGPTLimitDetail = types.ChatGPTLimitDetail{
 		DailyLeftCallCount:  limit.DailyLeftCallCount,
 		DailyLeftTokenCount: limit.DailyLeftTokenCount,
 		TotalTokenLeftCount: limit.TotalTokenLeftCount,

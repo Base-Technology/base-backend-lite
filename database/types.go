@@ -17,6 +17,7 @@ type User struct {
 	IMTPUserID     string `gorm:"size:100"`
 	Introduction   string `gorm:"size:20"`
 	Avatar         string
+	Sex            string           // F/M
 	Friends        []*User          `gorm:"many2many:user_friend,constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	FriendRequests []*FriendRequest `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Groups         []*Group         `gorm:"many2many:user_group,constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
@@ -45,8 +46,9 @@ type Comment struct {
 	gorm.Model
 	PostID           uint
 	CreatorID        uint
-	CommentPointedID uint
+	CommentPointedID *uint
 	Content          string
+	Level            uint
 
 	Post           *Post    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Creator        *User    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
@@ -69,6 +71,14 @@ type Like struct {
 
 	User *User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	Post *Post `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+}
+type Likecomment struct {
+	gorm.Model
+	UserID    uint `gorm:"uniqueIndex:distinct_likecommnet"`
+	CommentID uint `gorm:"uniqueIndex:distinct_likecomment"`
+
+	User    *User    `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Comment *Comment `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Collect struct {

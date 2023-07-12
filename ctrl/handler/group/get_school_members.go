@@ -5,8 +5,11 @@ import (
 
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
+	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 )
 
 func GetGroupUserHandle(c *gin.Context) {
@@ -20,26 +23,25 @@ type GetGroupUserHandler struct {
 }
 
 type GetGroupUserRequest struct {
-	Type string
-	User *database.User
+	Type  string
+	Page  int `json:"page"`
+	Limit int `json:"limit"`
+	User  *database.User
 }
 
 type GetGroupUserResponse struct {
 	common.BaseResponse
-	Users []*UserDeatail `json:"data"`
-}
-
-type UserDeatail struct {
-	ID           uint   `json:"id"`
-	Name         string `json:"username"`
-	Area         string `json:"area"`
-	School       string `json:"school"`
-	Introduction string `json:"introduction"`
-	Avatar       string `json:"avatar"`
+	Users []*types.UserDetail `json:"data"`
 }
 
 func (h *GetGroupUserHandler) BindReq(c *gin.Context) error {
 	h.Req.Type = c.Query("type")
+	if err := c.ShouldBindBodyWith(&h.Req, binding.JSON); err != nil {
+		msg := fmt.Sprintf("invalid request, bind error: %v", err)
+		seelog.Error(msg)
+		h.SetError(common.ErrorInvalidParams, msg)
+		return err
+	}
 	return nil
 }
 
@@ -66,21 +68,18 @@ func (h *GetGroupUserHandler) NeedVerifyToken() bool {
 
 func (h *GetGroupUserHandler) Process() {
 	users := []*database.User{}
-	if err := database.GetInstance().Model(&database.User{}).Where("school = ?", h.Req.User.School).Find(&users).Error; err != nil {
+	if err := database.GetInstance().Model(&database.User{}).Offset((h.Req.Page-1)*h.Req.Limit).Limit(h.Req.Limit).Where("school = ?", h.Req.User.School).Find(&users).Error; err != nil {
 		msg := fmt.Sprintf("get group user error, %v", err)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
 
-	h.Resp.Users = []*UserDeatail{}
+	h.Resp.Users = []*types.UserDetail{}
 	for _, user := range users {
-		h.Resp.Users = append(h.Resp.Users, &UserDeatail{
-			ID:           user.ID,
-			Name:         user.Name,
-			Area:         user.Area,
-			School:       user.School,
-			Introduction: user.Introduction,
-			Avatar:       user.Avatar,
+		h.Resp.Users = append(h.Resp.Users, &types.UserDetail{
+			ID:     user.ID,
+			Name:   user.Name,
+			Avatar: user.Avatar,
 		})
 	}
 }

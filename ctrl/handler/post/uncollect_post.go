@@ -64,6 +64,7 @@ func (h *UncollectPostHandler) NeedVerifyToken() bool {
 func (h *UncollectPostHandler) Process() {
 	if err := database.GetInstance().Where("post_id = ?", h.Req.PostID).Where("user_id = ?", h.Req.User.ID).Unscoped().Delete(&database.Collect{}).Error; err != nil {
 		msg := fmt.Sprintf("uncollect post error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}

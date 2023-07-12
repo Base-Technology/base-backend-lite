@@ -5,6 +5,7 @@ import (
 
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
@@ -28,7 +29,7 @@ type GetGroupInfoRequest struct {
 
 type GetGroupInfoResponse struct {
 	common.BaseResponse
-	GroupInfo *database.Group `json:"data"`
+	GroupInfo *types.GroupDetail `json:"data"`
 }
 
 func (h *GetGroupInfoHandler) BindReq(c *gin.Context) error {
@@ -66,11 +67,18 @@ func (h *GetGroupInfoHandler) Process() {
 	var err error
 	var group *database.Group
 	if err = database.GetInstance().Model(&database.Group{}).Preload("Members").Where("id = ?", h.Req.GroupID).Find(&group).Error; err != nil {
-		msg := fmt.Sprintf("get friend list error, %v", err)
+		msg := fmt.Sprintf("get group error, %v", err)
 		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}
 
-	h.Resp.GroupInfo = group
+	h.Resp.GroupInfo = &types.GroupDetail{
+		ID:          group.ID,
+		Name:        group.Name,
+		Description: group.Description,
+		CreatorID:   group.CreatorID,
+		MembersNum:  len(group.Members),
+		Avatar:      group.Avatar,
+	}
 }

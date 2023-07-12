@@ -65,6 +65,7 @@ func (h *CollectPostHandler) Process() {
 	collect := &database.Collect{UserID: h.Req.User.ID, PostID: h.Req.PostID}
 	if err := database.GetInstance().Create(collect).Error; err != nil {
 		msg := fmt.Sprintf("insert to database error, %v", err)
+		seelog.Errorf(msg)
 		h.SetError(common.ErrorInner, msg)
 		return
 	}

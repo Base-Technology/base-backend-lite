@@ -35,6 +35,7 @@ type RegisterRequest struct {
 	School       string `json:"school" binding:"required"`
 	ValidateCode string `json:"validate_code" binding:"required"`
 	Avatar       string `json:"avatar"`
+	Sex          string `json:"sex"`
 	ReferrerId   uint   `json:"referrer_id"`
 }
 
@@ -119,6 +120,7 @@ func (h *RegisterHandler) Process() {
 		PrivateKey: kBytes,
 		IMTPUserID: imtp.GetUserIDFromAddress(address),
 		Avatar:     h.Req.Avatar,
+		Sex:        h.Req.Sex,
 	}
 	if err := database.GetInstance().Create(user).Error; err != nil {
 		msg := fmt.Sprintf("insert into database error, %v", err)

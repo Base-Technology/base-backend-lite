@@ -11,20 +11,12 @@ import (
 	"github.com/Base-Technology/base-backend-lite/common"
 	"github.com/Base-Technology/base-backend-lite/conf"
 	"github.com/Base-Technology/base-backend-lite/ctrl/handler"
+	"github.com/Base-Technology/base-backend-lite/ctrl/types"
 	"github.com/Base-Technology/base-backend-lite/database"
 	"github.com/Base-Technology/base-backend-lite/seelog"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )
-
-type ChatGPTLimitDetail struct {
-	DailyLeftCallCount  int `json:"daily_left_call_count"`
-	DailyLeftTokenCount int `json:"daily_left_token_count"`
-	TotalTokenLeftCount int `json:"total_token_left_count"`
-
-	MaxDailyCallCount  int `json:"max_daily_call_count"`
-	MaxDailyTokenCount int `json:"max_daily_token_count"`
-}
 
 func ChatGPTHandle(c *gin.Context) {
 	hd := &ChatGPTHandler{}
@@ -44,7 +36,7 @@ type ChatGPTRequest struct {
 type ChatGPTResponse struct {
 	common.BaseResponse
 	Response string `json:"response"`
-	ChatGPTLimitDetail
+	types.ChatGPTLimitDetail
 }
 
 type ChatGPTProxyResponse struct {
@@ -106,7 +98,7 @@ func (h *ChatGPTHandler) Process() {
 	resetBalance(limit)
 
 	// fill in limit first, if there is error, this will be the response
-	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
+	h.Resp.ChatGPTLimitDetail = types.ChatGPTLimitDetail{
 		DailyLeftCallCount:  limit.DailyLeftCallCount,
 		DailyLeftTokenCount: limit.DailyLeftTokenCount,
 		TotalTokenLeftCount: limit.TotalTokenLeftCount,
@@ -179,7 +171,7 @@ func (h *ChatGPTHandler) Process() {
 	}
 
 	// fill in the updated limit
-	h.Resp.ChatGPTLimitDetail = ChatGPTLimitDetail{
+	h.Resp.ChatGPTLimitDetail = types.ChatGPTLimitDetail{
 		DailyLeftCallCount:  limit.DailyLeftCallCount,
 		DailyLeftTokenCount: limit.DailyLeftTokenCount,
 		TotalTokenLeftCount: limit.TotalTokenLeftCount,
